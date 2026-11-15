@@ -56,7 +56,7 @@ class WorkerConversion(QThread):
         if self._formato == "video":
             return self._video()
 
-        _EXT = {"pptx": ".pptx", "docx": ".docx", "xlsx": ".xlsx"}
+        _EXT = {"pptx": ".pptx", "docx": ".docx", "xlsx": ".xlsx", "md": ".md", "html": ".html"}
         orq = Orquestador()
         total = len(self._archivos)
         resultados: list[Path] = []
@@ -162,3 +162,9 @@ class WorkerConversion(QThread):
         elif fmt == "audio":
             from txt2media.generadores.generador_audio import GeneradorAudio
             GeneradorAudio(voz=self._voz).generar(doc, salida)
+        elif fmt == "md":
+            from txt2media.generadores.generador_md import GeneradorMD
+            GeneradorMD().generar(doc, salida, {})
+        elif fmt == "html":
+            from txt2media.generadores.generador_html import GeneradorHTML
+            GeneradorHTML().generar(doc, salida, {})

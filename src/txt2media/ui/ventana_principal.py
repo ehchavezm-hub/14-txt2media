@@ -58,7 +58,7 @@ class VentanaPrincipal(QMainWindow):
         form = QFormLayout(grp_opc)
 
         self.combo_formato = QComboBox()
-        for fmt in ("pptx", "docx", "xlsx", "audio", "video"):
+        for fmt in ("pptx", "docx", "xlsx", "audio", "video", "md", "html"):
             self.combo_formato.addItem(fmt.upper(), fmt)
         form.addRow("Formato de salida:", self.combo_formato)
 
@@ -171,6 +171,8 @@ class VentanaPrincipal(QMainWindow):
         es_audio = fmt == "audio"
         self.combo_modo.setEnabled(es_audio)
         self.combo_voz.setEnabled(fmt in ("audio", "video"))
+        self.combo_voz.setVisible(fmt in ("audio", "video"))
+        self.combo_modo.setVisible(es_audio)
 
     # ------------------------------------------------------------------ #
     def _iniciar_conversion(self) -> None:
