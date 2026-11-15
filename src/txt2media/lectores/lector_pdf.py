@@ -515,6 +515,10 @@ def _reconstruir_parrafos(items: list[dict]) -> list[dict]:
     return resultado
 
 
+# ── Patrones de lista (deben estar antes de _estructurar) ────────────────────
+_RE_LISTA     = re.compile(r"^[•○▪▸→►◆\-\*]\s+(.+)$")
+_RE_LISTA_NUM = re.compile(r"^\d{1,2}[.)]\s+(.+)$")
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Estructuración en secciones
 # ═══════════════════════════════════════════════════════════════════════════
@@ -553,7 +557,6 @@ def _estructurar(items: list[dict], nombre_doc: str) -> list[Seccion]:
             continue
 
         # Lista
-        from txt2media.lectores.lector_pdf import _RE_LISTA, _RE_LISTA_NUM
         m = _RE_LISTA.match(texto) or _RE_LISTA_NUM.match(texto)
         if m:
             item_txt = m.group(1).strip()
@@ -575,11 +578,6 @@ def _estructurar(items: list[dict], nombre_doc: str) -> list[Seccion]:
         secciones.append(Seccion(titulo=nombre_doc, nivel=1, bloques=[]))
 
     return secciones
-
-
-# ── Patrones de lista (reutilizados en _estructurar) ─────────────────────────
-_RE_LISTA     = re.compile(r"^[•○▪▸→►◆\-\*]\s+(.+)$")
-_RE_LISTA_NUM = re.compile(r"^\d{1,2}[.)]\s+(.+)$")
 
 
 # ═══════════════════════════════════════════════════════════════════════════

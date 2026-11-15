@@ -571,6 +571,9 @@ class VentanaPrincipal(QMainWindow):
 
     def closeEvent(self, event) -> None:
         self._guardar_ajustes()
+        if self._worker and self._worker.isRunning():
+            self._worker.cancelar()
+            self._worker.wait(3000)
         super().closeEvent(event)
 
 

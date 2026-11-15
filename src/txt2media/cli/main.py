@@ -14,6 +14,8 @@ _FORMATOS = {
     "xlsx": ".xlsx",
     "audio": ".mp3",
     "video": ".mp4",
+    "md": ".md",
+    "html": ".html",
 }
 
 _VOCES_ALIAS = {

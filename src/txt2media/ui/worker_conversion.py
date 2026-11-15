@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import threading
 from pathlib import Path
 
 try:
@@ -30,10 +31,10 @@ class WorkerConversion(QThread):
         self._carpeta_salida = carpeta_salida
         self._voz = voz
         self._modo = modo
-        self._cancelar = False
+        self._cancelar = threading.Event()
 
     def cancelar(self) -> None:
-        self._cancelar = True
+        self._cancelar.set()
 
     def run(self) -> None:
         try:
@@ -62,7 +63,7 @@ class WorkerConversion(QThread):
         resultados: list[Path] = []
 
         for i, archivo in enumerate(self._archivos, start=1):
-            if self._cancelar:
+            if self._cancelar.is_set():
                 break
             self.progreso.emit(i - 1, total, f"Procesando: {archivo.name}…")
             try:
@@ -86,7 +87,7 @@ class WorkerConversion(QThread):
         self._carpeta_salida.mkdir(parents=True, exist_ok=True)
         gen = GeneradorAudio(voz=self._voz)
         for i, archivo in enumerate(self._archivos, start=1):
-            if self._cancelar:
+            if self._cancelar.is_set():
                 break
             # emitir ANTES: muestra "procesando…" con barra indeterminada
             self.progreso.emit(i - 1, total, f"Sintetizando voz: {archivo.name}…")
@@ -104,7 +105,7 @@ class WorkerConversion(QThread):
         total = len(self._archivos)
         resultados: list[str] = []
         for i, archivo in enumerate(self._archivos, start=1):
-            if self._cancelar:
+            if self._cancelar.is_set():
                 break
             self.progreso.emit(i - 1, total, f"Sintetizando capítulos: {archivo.name}…")
             doc = self._leer(archivo)
@@ -123,7 +124,7 @@ class WorkerConversion(QThread):
         self._carpeta_salida.mkdir(parents=True, exist_ok=True)
         gen = GeneradorVideo(voz=self._voz)
         for i, archivo in enumerate(self._archivos, start=1):
-            if self._cancelar:
+            if self._cancelar.is_set():
                 break
             self.progreso.emit(i - 1, total, f"Generando video: {archivo.name}…")
             doc = self._leer(archivo)

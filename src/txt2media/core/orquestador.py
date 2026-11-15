@@ -71,5 +71,11 @@ class Orquestador:
         elif formato == "xlsx":
             from txt2media.generadores.generador_xlsx import GeneradorXLSX
             GeneradorXLSX().generar(doc, salida, {})
+        elif formato == "md":
+            from txt2media.generadores.generador_md import GeneradorMD
+            GeneradorMD().generar(doc, salida, {})
+        elif formato == "html":
+            from txt2media.generadores.generador_html import GeneradorHTML
+            GeneradorHTML().generar(doc, salida, {})
 
         return salida

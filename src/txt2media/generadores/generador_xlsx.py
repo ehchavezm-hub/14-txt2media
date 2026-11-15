@@ -22,12 +22,14 @@ class GeneradorXLSX:
         ws_indice["A1"] = doc.titulo
         ws_indice["A1"].font = Font(bold=True, size=14)
 
+        nombres_usados: set[str] = {"Índice"}
         for i, sec in enumerate(doc.secciones, start=1):
             if not sec.titulo and not sec.bloques:
                 continue
             ws_indice.cell(row=i + 1, column=1, value=sec.titulo or f"Sección {i}")
 
-            nombre_hoja = _nombre_hoja_seguro(sec.titulo or f"sec_{i}", i)
+            nombre_hoja = _nombre_hoja_unico(sec.titulo or f"sec_{i}", i, nombres_usados)
+            nombres_usados.add(nombre_hoja)
             ws = wb.create_sheet(title=nombre_hoja)
 
             if sec.titulo:
@@ -111,3 +113,14 @@ def _nombre_hoja_seguro(nombre: str, indice: int) -> str:
     if not nombre:
         nombre = f"Hoja{indice}"
     return nombre
+
+
+def _nombre_hoja_unico(nombre: str, indice: int, usados: set[str]) -> str:
+    base = _nombre_hoja_seguro(nombre, indice)
+    if base not in usados:
+        return base
+    for n in range(2, 100):
+        candidato = f"{base[:25]}_{n}"
+        if candidato not in usados:
+            return candidato
+    return f"Hoja{indice}"

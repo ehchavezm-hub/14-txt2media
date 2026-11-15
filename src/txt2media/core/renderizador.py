@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from txt2media.core.modelo import Seccion
+from txt2media.core.modelo import Seccion, TipoBloque
 from txt2media.core.tema import TEMA
 
 
@@ -52,11 +52,11 @@ class RenderizadorDiapositiva:
         for bloque in sec.bloques:
             if y > self.ALTO - 80:
                 break
-            if bloque.tipo in ("parrafo", "cita") or str(bloque.tipo).endswith("PARRAFO") or str(bloque.tipo).endswith("CITA"):
+            if bloque.tipo in (TipoBloque.PARRAFO, TipoBloque.CITA):
                 texto = (bloque.contenido or "")[:200]
                 draw.text((60, y), texto, fill="#1A1A1A", font=self._fuente_cuerpo)
                 y += 60
-            elif str(bloque.tipo).endswith("LISTA") and bloque.items_lista:
+            elif bloque.tipo == TipoBloque.LISTA and bloque.items_lista:
                 for item in bloque.items_lista[:6]:
                     draw.text((80, y), f"• {item[:100]}", fill="#1A1A1A", font=self._fuente_cuerpo)
                     y += 50

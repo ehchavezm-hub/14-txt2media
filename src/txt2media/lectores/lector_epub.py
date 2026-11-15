@@ -99,7 +99,7 @@ def _leer_titulo(zf: zipfile.ZipFile, opf_path: str) -> str:
 def _html_a_secciones(datos: bytes) -> list[Seccion]:
     from bs4 import BeautifulSoup
 
-    soup = BeautifulSoup(datos, "lxml")
+    soup = BeautifulSoup(datos, "html.parser")
     secciones: list[Seccion] = []
     sec_actual = Seccion(titulo="", nivel=0, bloques=[])
 

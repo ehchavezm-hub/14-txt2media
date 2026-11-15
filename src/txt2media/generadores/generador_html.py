@@ -156,12 +156,29 @@ class GeneradorHTML:
 
                 elif bloque.tipo == TipoBloque.TABLA and bloque.tabla:
                     t = bloque.tabla
-                    filas_html = ""
-                    for fila in t.filas:
-                        tag = "th" if fila.es_encabezado else "td"
-                        celdas = "".join(f"<{tag}>{self._esc(c)}</{tag}>" for c in fila.celdas)
-                        filas_html += f"<tr>{celdas}</tr>"
-                    bloques_html.append(f'<div class="tabla-wrap"><table>{filas_html}</table></div>')
+                    thead = ""
+                    tbody = ""
+                    if t.encabezados:
+                        celdas = "".join(f"<th>{self._esc(c)}</th>" for c in t.encabezados)
+                        thead = f"<thead><tr>{celdas}</tr></thead>"
+                        for fila in t.filas:
+                            celdas = "".join(f"<td>{self._esc(c)}</td>" for c in fila.celdas)
+                            tbody += f"<tr>{celdas}</tr>"
+                    else:
+                        for fila in t.filas:
+                            tag = "th" if fila.es_encabezado else "td"
+                            celdas = "".join(f"<{tag}>{self._esc(c)}</{tag}>" for c in fila.celdas)
+                            if fila.es_encabezado:
+                                thead += f"<tr>{celdas}</tr>"
+                            else:
+                                tbody += f"<tr>{celdas}</tr>"
+                        if thead:
+                            thead = f"<thead>{thead}</thead>"
+                    if tbody:
+                        tbody = f"<tbody>{tbody}</tbody>"
+                    bloques_html.append(
+                        f'<div class="tabla-wrap"><table>{thead}{tbody}</table></div>'
+                    )
 
             secciones_html.append(
                 f'<section class="seccion" id="{sid}">'

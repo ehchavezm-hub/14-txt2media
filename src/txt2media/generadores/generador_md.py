@@ -88,6 +88,13 @@ class GeneradorMD:
                     if t.encabezados:
                         lines.append("| " + " | ".join(t.encabezados) + " |")
                         lines.append("|" + "|".join(["---"] * len(t.encabezados)) + "|")
+                        for fila in t.filas:
+                            lines.append("| " + " | ".join(fila.celdas) + " |")
+                    elif t.filas:
+                        # Sin encabezados explícitos: usar primera fila como cabecera
+                        primera = t.filas[0]
+                        lines.append("| " + " | ".join(primera.celdas) + " |")
+                        lines.append("|" + "|".join(["---"] * len(primera.celdas)) + "|")
                         for fila in t.filas[1:]:
                             lines.append("| " + " | ".join(fila.celdas) + " |")
                     lines.append("")
