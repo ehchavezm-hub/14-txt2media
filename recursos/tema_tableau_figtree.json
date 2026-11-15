@@ -1,0 +1,33 @@
+{
+  "version": "1.0.1",
+  "nombre": "Tableau 10 + Figtree",
+  "colores": {
+    "azul":        "#1F77B4",
+    "naranja":     "#FF7F0E",
+    "verde":       "#2CA02C",
+    "rojo":        "#D62728",
+    "violeta":     "#9467BD",
+    "marron":      "#8C564B",
+    "rosa":        "#E377C2",
+    "gris":        "#7F7F7F",
+    "oliva":       "#BCBD22",
+    "cian":        "#17BECF",
+    "azul_claro":  "#AEC7E8",
+    "naranja_claro":"#FFBB78",
+    "verde_claro": "#98DF8A",
+    "rojo_claro":  "#FF9896"
+  },
+  "fuentes": {
+    "titulo":    "Figtree Bold",
+    "cuerpo":    "Figtree Regular",
+    "codigo":    "Courier New",
+    "fallback":  "Arial"
+  },
+  "diapositiva": {
+    "ancho_px": 1920,
+    "alto_px":  1080,
+    "fondo_portada":  "#1F77B4",
+    "fondo_seccion":  "#FFFFFF",
+    "barra_inferior": "#FF7F0E"
+  }
+}
