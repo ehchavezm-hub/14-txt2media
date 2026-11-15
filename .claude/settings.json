@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd \"$(git -C . rev-parse --show-toplevel 2>/dev/null || echo .)\" && git add -A && git diff --cached --quiet || git commit -m \"auto: guardado $(date +%Y-%m-%d\\ %H:%M)\" && git push origin main 2>&1 | tail -3"
+            "command": "REPO=$(git -C \"${PWD}\" rev-parse --show-toplevel 2>/dev/null || echo /home/user/14-txt2media); cd \"$REPO\"; git add -A; git diff --cached --quiet || git commit -m \"auto: $(date '+%Y-%m-%d %H:%M')\"; git push origin main 2>&1 | tail -2"
           }
         ]
       }
