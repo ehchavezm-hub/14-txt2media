@@ -5,7 +5,23 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from txt2media.core.modelo import Documento, Seccion
+from txt2media.core.modelo import Documento, Seccion, TipoBloque
+
+
+def _texto_seccion(sec: Seccion) -> str:
+    """Extrae texto plano de los bloques de una sección."""
+    partes = []
+    for bloque in sec.bloques:
+        if bloque.tipo == TipoBloque.PARRAFO:
+            partes.append(bloque.contenido)
+        elif bloque.tipo == TipoBloque.LISTA:
+            partes.extend(bloque.items_lista)
+        elif bloque.tipo == TipoBloque.CAPTION:
+            partes.append(bloque.contenido)
+        elif bloque.tipo == TipoBloque.TABLA and bloque.tabla:
+            for fila in bloque.tabla.filas:
+                partes.append(" | ".join(fila.celdas))
+    return "\n\n".join(partes)
 
 
 class GeneradorMD:
@@ -25,6 +41,8 @@ class GeneradorMD:
         lines.append(f'<div style="color:#4E79A7;font-size:2em;font-weight:bold;">')
         lines.append(f"{doc.titulo}")
         lines.append("</div>")
+        if doc.autor:
+            lines.append(f'<div style="color:#7A7A9A;font-size:0.9em;">{doc.autor}</div>')
         lines.append("")
         lines.append("---")
         lines.append("")
@@ -46,21 +64,40 @@ class GeneradorMD:
             anchor = re.sub(r"[^a-z0-9]+", "-", titulo.lower()).strip("-")
             lines.append(f'## <span id="{anchor}" style="color:#4E79A7;">{titulo}</span>')
             lines.append("")
-            for parrafo in self._dividir_parrafos(sec.texto):
-                if parrafo.strip():
-                    lines.append(self._enriquecer(parrafo.strip()))
+            for bloque in sec.bloques:
+                if bloque.tipo == TipoBloque.PARRAFO:
+                    texto = bloque.contenido.strip()
+                    if texto:
+                        if bloque.negrita and bloque.cursiva:
+                            texto = f"***{texto}***"
+                        elif bloque.negrita:
+                            texto = f"**{texto}**"
+                        elif bloque.cursiva:
+                            texto = f"*{texto}*"
+                        lines.append(self._enriquecer(texto))
+                        lines.append("")
+                elif bloque.tipo == TipoBloque.LISTA:
+                    for item in bloque.items_lista:
+                        lines.append(f"- {item}")
+                    lines.append("")
+                elif bloque.tipo == TipoBloque.CAPTION:
+                    lines.append(f'<small style="color:#7A7A9A;">_{bloque.contenido}_</small>')
+                    lines.append("")
+                elif bloque.tipo == TipoBloque.TABLA and bloque.tabla:
+                    t = bloque.tabla
+                    if t.encabezados:
+                        lines.append("| " + " | ".join(t.encabezados) + " |")
+                        lines.append("|" + "|".join(["---"] * len(t.encabezados)) + "|")
+                        for fila in t.filas[1:]:
+                            lines.append("| " + " | ".join(fila.celdas) + " |")
                     lines.append("")
             lines.append("---")
             lines.append("")
 
         return "\n".join(lines)
 
-    def _dividir_parrafos(self, texto: str) -> list[str]:
-        return [p for p in texto.split("\n\n") if p.strip()]
-
     def _enriquecer(self, texto: str) -> str:
-        # Resaltar términos en mayúsculas (siglas)
-        texto = re.sub(r"\b([A-Z]{2,})\b", r'<span style="color:#F28E2B;font-weight:bold;">\1</span>', texto)
-        # Resaltar números con unidades
-        texto = re.sub(r"\b(\d+[\.,]?\d*\s*%)", r'**\1**', texto)
+        texto = re.sub(r"\b([A-Z]{2,})\b",
+                       r'<span style="color:#F28E2B;font-weight:bold;">\1</span>', texto)
+        texto = re.sub(r"\b(\d+[\.,]?\d*\s*%)", r"**\1**", texto)
         return texto

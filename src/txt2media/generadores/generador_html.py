@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from txt2media.core.modelo import Documento
+from txt2media.core.modelo import Documento, TipoBloque
 
 _CSS = """
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,7 +16,6 @@ body {
     display: flex;
     min-height: 100vh;
 }
-/* Sidebar */
 #sidebar {
     width: 280px;
     min-width: 220px;
@@ -28,9 +27,10 @@ body {
     padding: 24px 0;
     z-index: 100;
 }
-#sidebar h2 {
+#sidebar .brand {
     color: #4E79A7;
-    font-size: 1rem;
+    font-size: 1.1rem;
+    font-weight: 700;
     padding: 0 20px 16px;
     border-bottom: 1px solid #333;
     margin-bottom: 12px;
@@ -52,14 +52,12 @@ body {
     background: #2A2A2A;
     border-left-color: #F28E2B;
 }
-/* Main */
 #main {
     margin-left: 280px;
     flex: 1;
     padding: 40px 48px;
     max-width: 900px;
 }
-/* Portada */
 #portada {
     background: linear-gradient(135deg, #4E79A7 0%, #2E5A8A 100%);
     color: white;
@@ -68,8 +66,7 @@ body {
     margin-bottom: 40px;
 }
 #portada h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
-#portada p { opacity: 0.8; font-size: 1rem; }
-/* Secciones */
+#portada .meta { opacity: 0.75; font-size: 0.95rem; }
 .seccion {
     background: white;
     border-radius: 8px;
@@ -86,27 +83,20 @@ body {
     padding-bottom: 8px;
     border-bottom: 1px solid #EEE;
 }
-.seccion p {
-    line-height: 1.75;
-    margin-bottom: 12px;
-    color: #333;
-}
+.seccion p { line-height: 1.75; margin-bottom: 12px; color: #333; }
 .seccion p:last-child { margin-bottom: 0; }
-.tag-sigla {
-    background: #FFF3E0;
-    color: #F28E2B;
-    font-weight: 700;
-    padding: 1px 4px;
-    border-radius: 3px;
-    font-size: 0.9em;
-}
-.tag-num {
-    color: #59A14F;
-    font-weight: 700;
-}
-/* Scroll suave */
+.seccion ul { margin: 8px 0 12px 20px; }
+.seccion ul li { line-height: 1.7; color: #333; margin-bottom: 4px; }
+.caption { color: #888; font-size: 0.85rem; font-style: italic; margin: -4px 0 12px; }
+.tabla-wrap { overflow-x: auto; margin: 12px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th { background: #4E79A7; color: white; padding: 8px 12px; text-align: left; }
+td { border: 1px solid #DDD; padding: 7px 12px; }
+tr:nth-child(even) td { background: #F8F8F8; }
+.tag-sigla { background: #FFF3E0; color: #F28E2B; font-weight: 700;
+             padding: 1px 4px; border-radius: 3px; font-size: 0.9em; }
+.tag-num   { color: #59A14F; font-weight: 700; }
 html { scroll-behavior: smooth; }
-/* Responsive */
 @media (max-width: 768px) {
     #sidebar { display: none; }
     #main { margin-left: 0; padding: 20px; }
@@ -114,20 +104,15 @@ html { scroll-behavior: smooth; }
 """
 
 _JS = """
-// Resaltar sección activa en sidebar al hacer scroll
 const secciones = document.querySelectorAll('.seccion');
 const links = document.querySelectorAll('#sidebar nav a');
-function actualizarActivo() {
+function marcarActivo() {
     let activo = null;
-    secciones.forEach(s => {
-        if (s.getBoundingClientRect().top <= 80) activo = s.id;
-    });
-    links.forEach(a => {
-        a.classList.toggle('activo', a.getAttribute('href') === '#' + activo);
-    });
+    secciones.forEach(s => { if (s.getBoundingClientRect().top <= 80) activo = s.id; });
+    links.forEach(a => a.classList.toggle('activo', a.getAttribute('href') === '#' + activo));
 }
-window.addEventListener('scroll', actualizarActivo);
-actualizarActivo();
+window.addEventListener('scroll', marcarActivo, { passive: true });
+marcarActivo();
 """
 
 
@@ -142,30 +127,54 @@ class GeneradorHTML:
         return salida
 
     def _construir(self, doc: Documento) -> str:
-        secciones_html = []
         nav_items = []
+        secciones_html = []
 
         for i, sec in enumerate(doc.secciones, 1):
             titulo = sec.titulo or f"Sección {i}"
             sid = f"sec-{i}"
             nav_items.append(f'<a href="#{sid}">{i}. {self._esc(titulo)}</a>')
-            parrafos = "".join(
-                f"<p>{self._enriquecer(p.strip())}</p>"
-                for p in sec.texto.split("\n\n") if p.strip()
-            )
+
+            bloques_html = []
+            for bloque in sec.bloques:
+                if bloque.tipo == TipoBloque.PARRAFO:
+                    t = self._enriquecer(bloque.contenido.strip())
+                    if bloque.negrita and bloque.cursiva:
+                        t = f"<strong><em>{t}</em></strong>"
+                    elif bloque.negrita:
+                        t = f"<strong>{t}</strong>"
+                    elif bloque.cursiva:
+                        t = f"<em>{t}</em>"
+                    bloques_html.append(f"<p>{t}</p>")
+
+                elif bloque.tipo == TipoBloque.LISTA:
+                    items = "".join(f"<li>{self._enriquecer(it)}</li>" for it in bloque.items_lista)
+                    bloques_html.append(f"<ul>{items}</ul>")
+
+                elif bloque.tipo == TipoBloque.CAPTION:
+                    bloques_html.append(f'<p class="caption">{self._esc(bloque.contenido)}</p>')
+
+                elif bloque.tipo == TipoBloque.TABLA and bloque.tabla:
+                    t = bloque.tabla
+                    filas_html = ""
+                    for fila in t.filas:
+                        tag = "th" if fila.es_encabezado else "td"
+                        celdas = "".join(f"<{tag}>{self._esc(c)}</{tag}>" for c in fila.celdas)
+                        filas_html += f"<tr>{celdas}</tr>"
+                    bloques_html.append(f'<div class="tabla-wrap"><table>{filas_html}</table></div>')
+
             secciones_html.append(
                 f'<section class="seccion" id="{sid}">'
                 f'<h2>{self._esc(titulo)}</h2>'
-                f'{parrafos}'
+                + "".join(bloques_html) +
                 f'</section>'
             )
 
-        nav_html = "\n".join(nav_items)
-        body_html = "\n".join(secciones_html)
         titulo_esc = self._esc(doc.titulo)
+        meta_linea = " · ".join(filter(None, [doc.autor, f"{len(doc.secciones)} secciones"]))
 
         return f"""<!DOCTYPE html>
-<html lang="es">
+<html lang="{doc.idioma or 'es'}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -176,25 +185,25 @@ class GeneradorHTML:
 </head>
 <body>
 <div id="sidebar">
-  <h2>&#9776; Contenido</h2>
+  <div class="brand">▶ txt2media</div>
   <nav>
     <a href="#portada">Inicio</a>
-    {nav_html}
+    {"".join(nav_items)}
   </nav>
 </div>
 <div id="main">
   <div id="portada">
     <h1>{titulo_esc}</h1>
-    <p>{len(doc.secciones)} secciones</p>
+    <div class="meta">{self._esc(meta_linea)}</div>
   </div>
-  {body_html}
+  {"".join(secciones_html)}
 </div>
 <script>{_JS}</script>
 </body>
 </html>"""
 
-    def _esc(self, texto: str) -> str:
-        return texto.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    def _esc(self, t: str) -> str:
+        return t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
     def _enriquecer(self, texto: str) -> str:
         texto = self._esc(texto)
