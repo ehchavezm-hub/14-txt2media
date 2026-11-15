@@ -82,9 +82,6 @@ class GeneradorVideo:
             if imagenes:
                 f.write(f"file '{imagenes[-1]}'\n")
 
-        fd, tmp_out = tempfile.mkstemp(suffix=".mp4", dir=salida.parent)
-        os.close(fd)
-
         try:
             cmd = [
                 ffmpeg, "-y",
@@ -100,7 +97,7 @@ class GeneradorVideo:
             ]
             if audio and audio.exists():
                 cmd += ["-c:a", "aac", "-b:a", "128k"]
-            cmd.append(tmp_out)
+            cmd.append(str(salida))
 
             result = subprocess.run(
                 cmd,
@@ -112,10 +109,5 @@ class GeneradorVideo:
                 raise RuntimeError(
                     f"ffmpeg error (código {result.returncode}):\n{result.stderr[-500:]}"
                 )
-            os.replace(tmp_out, salida)
         except Exception:
-            try:
-                os.unlink(tmp_out)
-            except OSError:
-                pass
             raise
