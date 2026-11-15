@@ -207,8 +207,13 @@ class VentanaPrincipal(QMainWindow):
         self.status.showMessage("Cancelando…")
 
     def _on_progreso(self, actual: int, total: int, nombre: str) -> None:
-        pct = int(actual / total * 100) if total else 0
-        self.barra_progreso.setValue(pct)
+        if actual == 0:
+            # modo indeterminado: animación de espera
+            self.barra_progreso.setRange(0, 0)
+        else:
+            self.barra_progreso.setRange(0, 100)
+            pct = int(actual / total * 100) if total else 0
+            self.barra_progreso.setValue(pct)
         self.status.showMessage(f"[{actual}/{total}] {nombre}")
 
     def _on_completado(self, resultados: list) -> None:

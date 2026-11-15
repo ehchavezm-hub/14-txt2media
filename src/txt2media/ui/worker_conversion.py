@@ -87,10 +87,13 @@ class WorkerConversion(QThread):
         for i, archivo in enumerate(self._archivos, start=1):
             if self._cancelar:
                 break
-            self.progreso.emit(i, total, archivo.name)
+            # emitir ANTES: muestra "procesando…" con barra indeterminada
+            self.progreso.emit(i - 1, total, f"Sintetizando voz: {archivo.name}…")
             doc = self._leer(archivo)
             salida = self._carpeta_salida / (archivo.stem + ".mp3")
             gen.generar(doc, salida)
+            # emitir DESPUÉS: archivo completado
+            self.progreso.emit(i, total, archivo.name)
             resultados.append(str(salida))
         return resultados
 
@@ -102,11 +105,12 @@ class WorkerConversion(QThread):
         for i, archivo in enumerate(self._archivos, start=1):
             if self._cancelar:
                 break
-            self.progreso.emit(i, total, archivo.name)
+            self.progreso.emit(i - 1, total, f"Sintetizando capítulos: {archivo.name}…")
             doc = self._leer(archivo)
             sub = self._carpeta_salida / archivo.stem
             gen = GeneradorAudio(voz=self._voz)
             archivos_gen = gen.generar_capitulos(doc, sub)
+            self.progreso.emit(i, total, archivo.name)
             resultados.extend(str(a) for a in archivos_gen)
         return resultados
 
