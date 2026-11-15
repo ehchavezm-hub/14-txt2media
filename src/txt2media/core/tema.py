@@ -31,6 +31,7 @@ class TemaTableau:
     fondo_oscuro: str = "#1E1E1E"
     texto: str = "#1A1A1A"
     texto_claro: str = "#F5F5F5"
+    azul_claro: str = "#6B9DC4"
 
 
 TEMA = TemaTableau()
