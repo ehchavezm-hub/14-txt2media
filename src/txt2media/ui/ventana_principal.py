@@ -230,10 +230,18 @@ class VentanaPrincipal(QMainWindow):
 
 def lanzar_app() -> None:
     if not _PYSIDE6_OK:
-        print("PySide6 no instalado. Usa: pip install PySide6>=6.10.0")
+        import tkinter.messagebox as mb  # type: ignore
+        try:
+            mb.showerror("txt2media", "PySide6 no instalado.\nEjecuta instalar.bat primero.")
+        except Exception:
+            pass
         return
     import sys
     app = QApplication.instance() or QApplication(sys.argv)
     ventana = VentanaPrincipal()
     ventana.show()
     sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    lanzar_app()
