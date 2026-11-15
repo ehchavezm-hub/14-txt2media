@@ -1,12 +1,12 @@
-"""Lanzador intermedio: encuentra pythonw.exe y abre la GUI sin consola."""
+"""Lanzador GUI: usa pythonw -m para evitar consola DOS."""
 import sys
 import os
 import subprocess
 
-here = os.path.dirname(os.path.abspath(__file__))
+# pythonw.exe esta junto a python.exe en la misma carpeta
 pythonw = os.path.join(os.path.dirname(sys.executable), "pythonw.exe")
 if not os.path.exists(pythonw):
-    pythonw = sys.executable
+    pythonw = sys.executable  # fallback: usa python normal
 
-script = os.path.join(here, "src", "txt2media", "ui", "ventana_principal.py")
-subprocess.Popen([pythonw, script])
+# Lanzar como modulo (-m) para que encuentre el paquete instalado
+subprocess.Popen([pythonw, "-m", "txt2media.ui.ventana_principal"])
