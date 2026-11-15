@@ -214,16 +214,25 @@ def _cmd_info(args: argparse.Namespace) -> None:
     print(f"Motor TTS disponible: {motor or 'ninguno'}")
 
     ffmpeg = shutil.which("ffmpeg")
-    print(f"ffmpeg: {'encontrado en ' + ffmpeg if ffmpeg else 'NO encontrado'}")
+    if ffmpeg:
+        print(f"ffmpeg: encontrado en {ffmpeg}")
+    else:
+        print("ffmpeg: NO encontrado  (video deshabilitado)")
+        print("        → Instalar: winget install Gyan.FFmpeg")
+        print("          o descargar desde https://ffmpeg.org/download.html")
+
+    # Detectar comando Python actual
+    py_ver = f"{sys.version_info.major}.{sys.version_info.minor}"
+    py_cmd = f"py -{py_ver} -m txt2media.cli.main"
 
     print("\nFormatos soportados:")
     filas = [
-        ("pptx",   "PowerPoint",          "py -3.13 -m txt2media.cli.main convertir archivo.pdf --formato pptx"),
-        ("docx",   "Word",                "py -3.13 -m txt2media.cli.main convertir archivo.pdf --formato docx"),
-        ("xlsx",   "Excel",               "py -3.13 -m txt2media.cli.main convertir archivo.pdf --formato xlsx"),
-        ("audio",  "Audio MP3 (completo)","py -3.13 -m txt2media.cli.main convertir archivo.pdf --formato audio"),
-        ("audio",  "Audio MP3 (capíts.)", "py -3.13 -m txt2media.cli.main convertir archivo.pdf --formato audio --modo capitulos"),
-        ("video",  "Video MP4",           "py -3.13 -m txt2media.cli.main convertir archivo.pdf --formato video"),
+        ("pptx",  "PowerPoint",           f"{py_cmd} convertir archivo.pdf --formato pptx"),
+        ("docx",  "Word",                 f"{py_cmd} convertir archivo.pdf --formato docx"),
+        ("xlsx",  "Excel",                f"{py_cmd} convertir archivo.pdf --formato xlsx"),
+        ("audio", "Audio MP3 (completo)", f"{py_cmd} convertir archivo.pdf --formato audio"),
+        ("audio", "Audio MP3 (capíts.)",  f"{py_cmd} convertir archivo.pdf --formato audio --modo capitulos"),
+        ("video", "Video MP4",            f"{py_cmd} convertir archivo.pdf --formato video"),
     ]
     print(f"  {'Formato':<8} {'Descripción':<24} Ejemplo de comando")
     print("  " + "-" * 80)
