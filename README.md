@@ -7,7 +7,7 @@ PowerPoint, Word, Excel, Audio MP3 (completo o por capítulos) y Video MP4.
 
 ```bash
 cd D:\PST\txt2media
-py -3.13 -m pip install -e .
+py -3.14 -m pip install -e .
 ```
 
 ## Uso rápido (CLI)

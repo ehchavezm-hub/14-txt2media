@@ -22,9 +22,21 @@ git config user.name "COSAPI txt2media"
 git config credential.helper manager
 echo [OK] Git configurado.
 
-REM 3. Instalar dependencias Python
+REM 3. Detectar version de Python disponible
+set PYCMD=
+py -3.15 --version >nul 2>&1 && set PYCMD=py -3.15
+if "%PYCMD%"=="" py -3.14 --version >nul 2>&1 && set PYCMD=py -3.14
+if "%PYCMD%"=="" py -3.13 --version >nul 2>&1 && set PYCMD=py -3.13
+if "%PYCMD%"=="" py -3.12 --version >nul 2>&1 && set PYCMD=py -3.12
+if "%PYCMD%"=="" (
+    echo [ERROR] No se encontro Python 3.12 o superior.
+    pause & exit /b 1
+)
+echo [OK] Python detectado: %PYCMD%
+
+REM Instalar dependencias Python
 echo Instalando dependencias...
-py -3.13 -m pip install -e . -q
+%PYCMD% -m pip install -e . -q
 echo [OK] Dependencias instaladas.
 
 REM 4. Crear tarea programada: auto-guardar en GitHub cada 5 minutos (silencioso)
@@ -43,7 +55,7 @@ if errorlevel 1 (
 
 REM 5. Verificar instalacion
 echo.
-py -3.13 -m txt2media.cli.main --version
+%PYCMD% -m txt2media.cli.main --version
 echo.
 echo =============================================
 echo  TODO LISTO. No necesitas hacer nada mas.
