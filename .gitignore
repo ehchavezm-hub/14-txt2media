@@ -22,6 +22,10 @@ dist/
 # IDE
 .vscode/
 .idea/
+
+# Claude — guardar settings pero no caché
+.claude/cache/
+# NO ignorar .claude/settings.json — contiene los hooks de auto-guardado
 *.swp
 *.swo
 
