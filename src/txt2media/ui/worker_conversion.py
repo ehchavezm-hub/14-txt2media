@@ -124,10 +124,11 @@ class WorkerConversion(QThread):
         for i, archivo in enumerate(self._archivos, start=1):
             if self._cancelar:
                 break
-            self.progreso.emit(i, total, archivo.name)
+            self.progreso.emit(i - 1, total, f"Generando video: {archivo.name}…")
             doc = self._leer(archivo)
             salida = self._carpeta_salida / (archivo.stem + ".mp4")
             gen.generar(doc, salida)
+            self.progreso.emit(i, total, archivo.name)
             resultados.append(str(salida))
         return resultados
 
