@@ -50,9 +50,13 @@ class WorkerConversion(QThread):
         if self._formato == "audio" and self._modo == "capitulos":
             return self._audio_capitulos()
 
+        if self._formato == "audio":
+            return self._audio_completo()
+
         if self._formato == "video":
             return self._video()
 
+        _EXT = {"pptx": ".pptx", "docx": ".docx", "xlsx": ".xlsx"}
         orq = Orquestador()
         total = len(self._archivos)
         resultados: list[Path] = []
@@ -62,9 +66,8 @@ class WorkerConversion(QThread):
                 break
             self.progreso.emit(i, total, archivo.name)
             try:
-                salida = self._carpeta_salida / archivo.with_suffix(
-                    f".{self._formato}"
-                ).name
+                ext = _EXT.get(self._formato, f".{self._formato}")
+                salida = self._carpeta_salida / archivo.with_suffix(ext).name
                 self._carpeta_salida.mkdir(parents=True, exist_ok=True)
                 doc = self._leer(archivo)
                 self._generar(doc, salida)
@@ -73,6 +76,23 @@ class WorkerConversion(QThread):
                 self.error.emit(f"{archivo.name}: {exc}")
 
         return [str(r) for r in resultados]
+
+    def _audio_completo(self) -> list:
+        from txt2media.generadores.generador_audio import GeneradorAudio
+
+        total = len(self._archivos)
+        resultados: list[str] = []
+        self._carpeta_salida.mkdir(parents=True, exist_ok=True)
+        gen = GeneradorAudio(voz=self._voz)
+        for i, archivo in enumerate(self._archivos, start=1):
+            if self._cancelar:
+                break
+            self.progreso.emit(i, total, archivo.name)
+            doc = self._leer(archivo)
+            salida = self._carpeta_salida / (archivo.stem + ".mp3")
+            gen.generar(doc, salida)
+            resultados.append(str(salida))
+        return resultados
 
     def _audio_capitulos(self) -> list:
         from txt2media.generadores.generador_audio import GeneradorAudio
