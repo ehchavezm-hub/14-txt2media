@@ -8,11 +8,12 @@ echo  txt2media v1.0.1 — Construir version portable
 echo =============================================
 
 REM Detectar Python
+REM Preferir 3.14 y 3.13 — Pillow aun no soporta 3.15
 set PYCMD=
-py -3.15 --version >nul 2>&1 && set PYCMD=py -3.15
-if "%PYCMD%"=="" py -3.14 --version >nul 2>&1 && set PYCMD=py -3.14
+py -3.14 --version >nul 2>&1 && set PYCMD=py -3.14
 if "%PYCMD%"=="" py -3.13 --version >nul 2>&1 && set PYCMD=py -3.13
 if "%PYCMD%"=="" py -3.12 --version >nul 2>&1 && set PYCMD=py -3.12
+if "%PYCMD%"=="" py -3.15 --version >nul 2>&1 && set PYCMD=py -3.15
 if "%PYCMD%"=="" (
     echo [ERROR] Python no encontrado.
     pause & exit /b 1

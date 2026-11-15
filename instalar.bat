@@ -22,12 +22,12 @@ git config user.name "COSAPI txt2media"
 git config credential.helper manager
 echo [OK] Git configurado.
 
-REM 3. Detectar version de Python disponible
+REM 3. Detectar version de Python — preferir 3.14/3.13 (Pillow no soporta 3.15 aun)
 set PYCMD=
-py -3.15 --version >nul 2>&1 && set PYCMD=py -3.15
-if "%PYCMD%"=="" py -3.14 --version >nul 2>&1 && set PYCMD=py -3.14
+py -3.14 --version >nul 2>&1 && set PYCMD=py -3.14
 if "%PYCMD%"=="" py -3.13 --version >nul 2>&1 && set PYCMD=py -3.13
 if "%PYCMD%"=="" py -3.12 --version >nul 2>&1 && set PYCMD=py -3.12
+if "%PYCMD%"=="" py -3.15 --version >nul 2>&1 && set PYCMD=py -3.15
 if "%PYCMD%"=="" (
     echo [ERROR] No se encontro Python 3.12 o superior.
     pause & exit /b 1
