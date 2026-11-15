@@ -43,6 +43,10 @@ dev = [
 
 [project.scripts]
 txt2media = "txt2media.cli.main:main"
+txt2media-gui = "txt2media.ui.ventana_principal:lanzar_app"
+
+[project.gui-scripts]
+txt2media-app = "txt2media.ui.ventana_principal:lanzar_app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
