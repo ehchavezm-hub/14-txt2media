@@ -16,6 +16,8 @@ class TipoBloque(Enum):
     CODIGO = "codigo"
     CITA = "cita"
     SEPARADOR = "separador"
+    CAPTION = "caption"       # pie de figura/tabla
+    NOTA_PIE = "nota_pie"     # footnote (referencia, no flujo principal)
 
 
 @dataclass
@@ -48,6 +50,8 @@ class Bloque:
     tabla: Tabla | None = None
     imagen: Imagen | None = None
     idioma_codigo: str = ""
+    negrita: bool = False
+    cursiva: bool = False
 
 
 @dataclass
