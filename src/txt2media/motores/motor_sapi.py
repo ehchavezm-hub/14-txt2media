@@ -35,8 +35,8 @@ class MotorSAPI(MotorVoz):
             raise ErrorVoz("pyttsx3 no instalado") from exc
 
         salida.parent.mkdir(parents=True, exist_ok=True)
-        fd, tmp = tempfile.mkstemp(suffix=".wav", dir=salida.parent)
-        os.close(fd)
+        # SAPI guarda WAV; usar extension .wav correcta
+        salida_wav = salida.with_suffix(".wav")
 
         try:
             engine = pyttsx3.init()
@@ -46,22 +46,8 @@ class MotorSAPI(MotorVoz):
                     if voz.lower() in (v.name or "").lower():
                         engine.setProperty("voice", v.id)
                         break
-            engine.save_to_file(texto, tmp)
+            engine.save_to_file(texto, str(salida_wav))
             engine.runAndWait()
             del engine
-            # SAPI guarda WAV; renombramos a .wav si la salida pide .mp3
-            # El orquestador de audio se encarga de convertir si es necesario
-            if salida.suffix.lower() == ".wav":
-                os.replace(tmp, salida)
-            else:
-                os.replace(tmp, salida.with_suffix(".wav"))
-                try:
-                    os.unlink(tmp)
-                except OSError:
-                    pass
         except Exception as exc:
-            try:
-                os.unlink(tmp)
-            except OSError:
-                pass
             raise ErrorVoz(f"SAPI error: {exc}") from exc

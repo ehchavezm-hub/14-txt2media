@@ -42,15 +42,5 @@ class MotorEdgeTTS(MotorVoz):
         import edge_tts
 
         salida.parent.mkdir(parents=True, exist_ok=True)
-        fd, tmp = tempfile.mkstemp(suffix=".mp3", dir=salida.parent)
-        os.close(fd)
-        try:
-            communicate = edge_tts.Communicate(texto, voz)
-            await communicate.save(tmp)
-            os.replace(tmp, salida)
-        except Exception:
-            try:
-                os.unlink(tmp)
-            except OSError:
-                pass
-            raise
+        communicate = edge_tts.Communicate(texto, voz)
+        await communicate.save(str(salida))
