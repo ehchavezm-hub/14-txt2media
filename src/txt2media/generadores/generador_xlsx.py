@@ -68,6 +68,16 @@ class GeneradorXLSX:
                         fila += 1
                     fila += 1
 
+                elif bloque.tipo == TipoBloque.CAPTION and bloque.contenido:
+                    cell = ws.cell(row=fila, column=1, value=bloque.contenido)
+                    cell.font = Font(italic=True, size=9, color="888888")
+                    fila += 1
+
+                elif bloque.tipo == TipoBloque.NOTA_PIE and bloque.contenido:
+                    cell = ws.cell(row=fila, column=1, value=bloque.contenido)
+                    cell.font = Font(size=8, color="AAAAAA")
+                    fila += 1
+
                 elif bloque.tipo == TipoBloque.SEPARADOR:
                     fila += 1
 

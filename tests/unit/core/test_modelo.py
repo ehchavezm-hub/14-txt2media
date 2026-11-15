@@ -1,17 +1,7 @@
 """Tests del modelo de datos interno."""
 
-from pathlib import Path
-
 from txt2media.core.modelo import (
-    Bloque,
-    Documento,
-    FilaTabla,
-    Imagen,
-    NivelResumen,
-    Resumen,
-    Seccion,
-    Tabla,
-    TipoBloque,
+    Bloque, Documento, FilaTabla, Imagen, Seccion, Tabla, TipoBloque,
 )
 
 
@@ -23,9 +13,9 @@ def test_documento_valores_por_defecto() -> None:
 
 
 def test_documento_con_titulo() -> None:
-    doc = Documento(titulo="Informe de Obra", autor="Juan", paginas=50)
+    doc = Documento(titulo="Informe de Obra", autor="Juan")
     assert doc.titulo == "Informe de Obra"
-    assert doc.paginas == 50
+    assert doc.autor == "Juan"
 
 
 def test_bloque_tipo_parrafo() -> None:
@@ -34,11 +24,23 @@ def test_bloque_tipo_parrafo() -> None:
     assert b.contenido == "Texto de prueba"
 
 
+def test_bloque_negrita_cursiva() -> None:
+    b = Bloque(tipo=TipoBloque.PARRAFO, contenido="bold", negrita=True, cursiva=False)
+    assert b.negrita is True
+    assert b.cursiva is False
+
+
+def test_bloque_caption_nota_pie() -> None:
+    cap = Bloque(tipo=TipoBloque.CAPTION, contenido="Fig 1.")
+    nota = Bloque(tipo=TipoBloque.NOTA_PIE, contenido="1. Fuente.")
+    assert cap.tipo == TipoBloque.CAPTION
+    assert nota.tipo == TipoBloque.NOTA_PIE
+
+
 def test_bloque_tipo_tabla() -> None:
     tabla = Tabla(
         encabezados=["Col1", "Col2"],
         filas=[FilaTabla(celdas=["A", "B"]), FilaTabla(celdas=["C", "D"])],
-        confianza=0.95,
     )
     b = Bloque(tipo=TipoBloque.TABLA, tabla=tabla)
     assert b.tabla is not None
@@ -46,7 +48,7 @@ def test_bloque_tipo_tabla() -> None:
 
 
 def test_seccion_nivel_y_titulo() -> None:
-    s = Seccion(nivel=1, titulo="Introducción", pagina_origen=1)
+    s = Seccion(nivel=1, titulo="Introducción")
     assert s.nivel == 1
     assert s.titulo == "Introducción"
     assert s.bloques == []
@@ -66,25 +68,23 @@ def test_documento_agrega_secciones() -> None:
     assert len(doc.secciones) == 2
 
 
-def test_nivel_resumen_enum() -> None:
-    assert NivelResumen.BREVE.value == "breve"
-    assert NivelResumen.COMPLETO.value == "completo"
+def test_tipo_bloque_enum_completo() -> None:
+    tipos = {t.value for t in TipoBloque}
+    assert "parrafo" in tipos
+    assert "titulo" in tipos
+    assert "lista" in tipos
+    assert "tabla" in tipos
+    assert "caption" in tipos
+    assert "nota_pie" in tipos
 
 
 def test_imagen_valores_por_defecto() -> None:
     img = Imagen()
-    assert img.pie == ""
-    assert img.texto_alternativo == ""
-    assert img.ruta_temporal is None
-
-
-def test_resumen_es_original_recortado_por_defecto_false() -> None:
-    r = Resumen(texto="Resumen corto", nivel=NivelResumen.BREVE)
-    assert r.es_original_recortado is False
+    assert img.alt == ""
+    assert img.ruta is None
 
 
 def test_documento_secciones_independientes() -> None:
-    """Dos documentos no comparten la misma lista de secciones (problema de mutable defaults)."""
     doc1 = Documento()
     doc2 = Documento()
     doc1.secciones.append(Seccion(titulo="S1"))

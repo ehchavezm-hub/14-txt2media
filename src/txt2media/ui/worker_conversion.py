@@ -64,7 +64,7 @@ class WorkerConversion(QThread):
         for i, archivo in enumerate(self._archivos, start=1):
             if self._cancelar:
                 break
-            self.progreso.emit(i, total, archivo.name)
+            self.progreso.emit(i - 1, total, f"Procesando: {archivo.name}…")
             try:
                 ext = _EXT.get(self._formato, f".{self._formato}")
                 salida = self._carpeta_salida / archivo.with_suffix(ext).name
@@ -72,6 +72,7 @@ class WorkerConversion(QThread):
                 doc = self._leer(archivo)
                 self._generar(doc, salida)
                 resultados.append(salida)
+                self.progreso.emit(i, total, archivo.name)
             except Exception as exc:
                 self.error.emit(f"{archivo.name}: {exc}")
 

@@ -119,7 +119,7 @@ class TestSmokeVideo:
         from txt2media.generadores.generador_video import GeneradorVideo
 
         doc = LectorMarkdown().leer(md)
-        gen = GeneradorVideo(motor=None)
+        gen = GeneradorVideo(voz="es-PE-CamilaNeural")
         gen.generar(doc, salida)
 
         assert salida.exists()

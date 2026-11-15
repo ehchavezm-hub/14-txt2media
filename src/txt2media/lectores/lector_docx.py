@@ -44,8 +44,12 @@ class LectorDOCX:
                             Bloque(tipo=TipoBloque.LISTA, items_lista=[texto])
                         )
                 else:
+                    runs = p.runs
+                    negrita = bool(runs) and all(r.bold for r in runs if r.text.strip())
+                    cursiva = bool(runs) and all(r.italic for r in runs if r.text.strip())
                     sec_actual.bloques.append(
-                        Bloque(tipo=TipoBloque.PARRAFO, contenido=texto)
+                        Bloque(tipo=TipoBloque.PARRAFO, contenido=texto,
+                               negrita=negrita, cursiva=cursiva)
                     )
 
             elif tag == "tbl":

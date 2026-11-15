@@ -118,7 +118,12 @@ def _html_a_secciones(datos: bytes) -> list[Seccion]:
             sec_actual = Seccion(titulo=texto, nivel=nivel, bloques=[])
 
         elif tag == "p":
-            sec_actual.bloques.append(Bloque(tipo=TipoBloque.PARRAFO, contenido=texto))
+            negrita = bool(elem.find(["b", "strong"]))
+            cursiva = bool(elem.find(["i", "em"]))
+            sec_actual.bloques.append(
+                Bloque(tipo=TipoBloque.PARRAFO, contenido=texto,
+                       negrita=negrita, cursiva=cursiva)
+            )
 
         elif tag in ("ul", "ol"):
             items = [li.get_text(strip=True) for li in elem.find_all("li")]

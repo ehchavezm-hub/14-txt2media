@@ -60,9 +60,9 @@ class TestCLIBasico:
         )
         assert result.returncode == 0
 
-    def test_subcomando_config_existe(self):
+    def test_subcomando_clave_existe(self):
         result = subprocess.run(
-            [sys.executable, "-m", "txt2media.cli.main", "config", "--help"],
+            [sys.executable, "-m", "txt2media.cli.main", "clave", "--help"],
             capture_output=True, text=True
         )
         assert result.returncode == 0

@@ -23,7 +23,12 @@ class GeneradorDOCX:
                 d.add_heading(sec.titulo, level=min(sec.nivel, 9))
             for bloque in sec.bloques:
                 if bloque.tipo == TipoBloque.PARRAFO and bloque.contenido:
-                    d.add_paragraph(bloque.contenido)
+                    p = d.add_paragraph()
+                    run = p.add_run(bloque.contenido)
+                    if bloque.negrita:
+                        run.bold = True
+                    if bloque.cursiva:
+                        run.italic = True
                 elif bloque.tipo == TipoBloque.LISTA and bloque.items_lista:
                     for item in bloque.items_lista:
                         d.add_paragraph(item, style="List Bullet")
@@ -54,6 +59,17 @@ class GeneradorDOCX:
                         p.style = "Quote"
                     except Exception:
                         pass
+                elif bloque.tipo == TipoBloque.CAPTION and bloque.contenido:
+                    p = d.add_paragraph(bloque.contenido)
+                    for run in p.runs:
+                        run.italic = True
+                        run.font.size = Pt(9)
+                        run.font.color.rgb = RGBColor(0x88, 0x88, 0x88)
+                elif bloque.tipo == TipoBloque.NOTA_PIE and bloque.contenido:
+                    p = d.add_paragraph(bloque.contenido)
+                    for run in p.runs:
+                        run.font.size = Pt(8)
+                        run.font.color.rgb = RGBColor(0xAA, 0xAA, 0xAA)
                 elif bloque.tipo == TipoBloque.SEPARADOR:
                     d.add_paragraph("─" * 40)
 

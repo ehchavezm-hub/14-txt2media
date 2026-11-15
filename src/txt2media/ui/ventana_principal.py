@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 
 try:
-    from PySide6.QtCore import Qt, QSize, QThread, QTimer
+    from PySide6.QtCore import Qt, QSize, QThread, QTimer, QSettings
     from PySide6.QtGui import QAction, QDragEnterEvent, QDropEvent, QFont, QColor, QPalette
     from PySide6.QtWidgets import (
         QApplication, QComboBox, QFileDialog, QHBoxLayout, QLabel,
@@ -208,8 +208,10 @@ class VentanaPrincipal(QMainWindow):
         self.setAcceptDrops(True)
         self._worker = None
         self._archivos: list[Path] = []
+        self._settings = QSettings("txt2media", "txt2media") if _PYSIDE6_OK else None
         self.setStyleSheet(_QSS)
         self._init_ui()
+        self._restaurar_ajustes()
 
     # ------------------------------------------------------------------ #
     def _init_ui(self) -> None:
@@ -382,6 +384,11 @@ class VentanaPrincipal(QMainWindow):
         h_acc.addWidget(self.btn_cancelar, 1)
         v_der.addLayout(h_acc)
 
+        self.btn_abrir_carpeta = QPushButton("📂  Abrir carpeta de salida")
+        self.btn_abrir_carpeta.setObjectName("btn_ghost")
+        self.btn_abrir_carpeta.setVisible(False)
+        v_der.addWidget(self.btn_abrir_carpeta)
+
         h_cuerpo.addWidget(panel_der, 1)
         root.addWidget(cuerpo, 1)
 
@@ -396,6 +403,7 @@ class VentanaPrincipal(QMainWindow):
         btn_carpeta.clicked.connect(self._seleccionar_carpeta)
         self.btn_convertir.clicked.connect(self._iniciar_conversion)
         self.btn_cancelar.clicked.connect(self._cancelar_conversion)
+        self.btn_abrir_carpeta.clicked.connect(self._abrir_carpeta_salida)
         self.combo_formato.currentIndexChanged.connect(self._on_formato_cambiado)
         self._on_formato_cambiado()
 
@@ -475,6 +483,7 @@ class VentanaPrincipal(QMainWindow):
 
         self.btn_convertir.setEnabled(False)
         self.btn_cancelar.setEnabled(True)
+        self.btn_abrir_carpeta.setVisible(False)
         self.barra_progreso.setValue(0)
         self._worker.start()
 
@@ -503,6 +512,8 @@ class VentanaPrincipal(QMainWindow):
         self.lbl_progreso.setText(f"✓  {n} archivo(s) generado(s)")
         self.lbl_archivo_actual.setText("")
         self.status.showMessage(f"Completado  ·  {n} archivo(s)  →  {self.edit_salida.text()}")
+        self.btn_abrir_carpeta.setVisible(True)
+        self._guardar_ajustes()
         QMessageBox.information(
             self, "Completado",
             f"Se generaron {n} archivo(s).\n\nCarpeta: {self.edit_salida.text()}",
@@ -517,6 +528,50 @@ class VentanaPrincipal(QMainWindow):
         self.btn_cancelar.setEnabled(False)
         self.status.showMessage(f"Error  ·  {mensaje[:80]}")
         QMessageBox.critical(self, "Error", mensaje)
+
+    def _abrir_carpeta_salida(self) -> None:
+        import subprocess, sys
+        carpeta = self.edit_salida.text() or "."
+        if sys.platform == "win32":
+            subprocess.Popen(["explorer", carpeta])
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", carpeta])
+        else:
+            subprocess.Popen(["xdg-open", carpeta])
+
+    def _restaurar_ajustes(self) -> None:
+        if not self._settings:
+            return
+        fmt = self._settings.value("formato", "")
+        if fmt:
+            idx = self.combo_formato.findData(fmt)
+            if idx >= 0:
+                self.combo_formato.setCurrentIndex(idx)
+        voz = self._settings.value("voz", "")
+        if voz:
+            idx = self.combo_voz.findData(voz)
+            if idx >= 0:
+                self.combo_voz.setCurrentIndex(idx)
+        modo = self._settings.value("modo", "")
+        if modo:
+            idx = self.combo_modo.findData(modo)
+            if idx >= 0:
+                self.combo_modo.setCurrentIndex(idx)
+        carpeta = self._settings.value("carpeta_salida", "")
+        if carpeta:
+            self.edit_salida.setText(carpeta)
+
+    def _guardar_ajustes(self) -> None:
+        if not self._settings:
+            return
+        self._settings.setValue("formato", self.combo_formato.currentData())
+        self._settings.setValue("voz", self.combo_voz.currentData())
+        self._settings.setValue("modo", self.combo_modo.currentData())
+        self._settings.setValue("carpeta_salida", self.edit_salida.text())
+
+    def closeEvent(self, event) -> None:
+        self._guardar_ajustes()
+        super().closeEvent(event)
 
 
 def lanzar_app() -> None:
