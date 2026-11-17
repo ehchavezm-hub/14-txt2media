@@ -95,6 +95,8 @@ if errorlevel 1 (
 :: PASO 4: CREAR ACCESO DIRECTO EN EL ESCRITORIO
 :: ---------------------------------------------------------------
 echo    Creando acceso directo...
+:: Limpiar versiones anteriores del Escritorio
+if exist "%USERPROFILE%\Desktop\txt2media.pyw" del /f /q "%USERPROFILE%\Desktop\txt2media.pyw" >nul 2>&1
 !PYCMD! "%~dp0crear_acceso.py"
 
 :: ---------------------------------------------------------------

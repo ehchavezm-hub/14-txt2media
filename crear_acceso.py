@@ -48,14 +48,16 @@ shortcut_lnk = os.path.join(desktop, "txt2media.lnk")
 pythonw = find_pythonw()
 
 if pythonw:
+    # Arguments must be: "C:\path\lanzar.pyw" (with real double-quotes, no backticks)
+    # PowerShell single-quoted string preserves literal double-quotes inside it.
     ps = (
-        f"$s=(New-Object -ComObject WScript.Shell).CreateShortcut('{shortcut_lnk}');"
-        f"$s.TargetPath='{pythonw}';"
-        f"$s.Arguments='`\"{launcher}`\"';"
-        f"$s.WorkingDirectory='{here}';"
-        f"$s.IconLocation='{icon}';"
-        f"$s.Description='txt2media v1.0.1';"
-        f"$s.Save()"
+        f"$s=(New-Object -ComObject WScript.Shell).CreateShortcut('{shortcut_lnk}');\n"
+        f"$s.TargetPath='{pythonw}';\n"
+        "$s.Arguments='\"" + launcher + "\"';\n"
+        f"$s.WorkingDirectory='{here}';\n"
+        f"$s.IconLocation='{icon}';\n"
+        "$s.Description='txt2media v1.0.1';\n"
+        "$s.Save()\n"
     )
     result = subprocess.run(
         ["powershell", "-NoProfile", "-Command", ps],
@@ -70,16 +72,16 @@ if pythonw:
             f.write(
                 f'Set sh = CreateObject("WScript.Shell")\n'
                 f'sh.CurrentDirectory = "{here}"\n'
-                f'sh.Run "pythonw ""{launcher}""", 0\n'
+                f'sh.Run "{pythonw} ""{launcher}""", 0\n'
             )
         print(f"VBS_FALLBACK (ps_error: {result.stderr.strip()})")
 else:
-    # Sin pythonw en ningún lado: crear .vbs con 'python' normal
+    # Sin pythonw: crear .vbs con python normal
     vbs = os.path.join(desktop, "txt2media.vbs")
     with open(vbs, "w") as f:
         f.write(
             f'Set sh = CreateObject("WScript.Shell")\n'
             f'sh.CurrentDirectory = "{here}"\n'
-            f'sh.Run "pythonw ""{launcher}""", 0\n'
+            f'sh.Run "python ""{launcher}""", 0\n'
         )
     print("VBS_FALLBACK_NO_PYTHONW")
