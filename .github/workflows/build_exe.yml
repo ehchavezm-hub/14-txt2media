@@ -1,0 +1,83 @@
+name: Build txt2media_setup.exe
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Inject ZIP into bootstrap and build EXE
+        shell: python
+        run: |
+          import zipfile, base64, pathlib, os, io, re
+
+          # Crear ZIP con todos los archivos del proyecto
+          files = [
+              "instalar_universal.bat",
+              "lanzar.pyw",
+              "crear_acceso.py",
+              "txt2media_gui.bat",
+              "pyproject.toml",
+          ]
+          if os.path.exists("assets/icon.ico"):
+              files.append("assets/icon.ico")
+          for p in pathlib.Path("src").rglob("*.py"):
+              files.append(str(p).replace("\\", "/"))
+
+          buf = io.BytesIO()
+          with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+              for f in files:
+                  if os.path.exists(f):
+                      z.write(f, f"txt2media/{f}")
+
+          b64 = base64.b64encode(buf.getvalue()).decode()
+
+          with open("bootstrap_installer.py", encoding="utf-8") as fh:
+              code = fh.read()
+          code = code.replace('"__ZIP_CONTENT__"', f'"""{b64}"""', 1)
+          with open("bootstrap_filled.py", "w", encoding="utf-8") as fh:
+              fh.write(code)
+          print(f"ZIP inyectado: {len(b64)//1024} KB (base64)")
+
+      - name: Run PyInstaller
+        run: |
+          $icon = if (Test-Path "assets/icon.ico") { "--icon=assets/icon.ico" } else { "" }
+          pyinstaller --onefile --noconsole --name txt2media_setup $icon bootstrap_filled.py
+        shell: pwsh
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: txt2media_setup
+          path: dist/txt2media_setup.exe
+          retention-days: 90
+
+      - name: Create GitHub Release (en cada push a main)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.1-build.${{ github.run_number }}
+          name: "txt2media v1.0.1 (build ${{ github.run_number }})"
+          body: |
+            ## Instalador automático
+
+            Descarga `txt2media_setup.exe` y haz doble clic.
+            - Instala Python automáticamente si no está instalado
+            - Crea acceso directo en el Escritorio
+            - Compatible: Windows 10/11 (64-bit, ARM, S Mode)
+          files: dist/txt2media_setup.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
