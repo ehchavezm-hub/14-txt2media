@@ -93,26 +93,9 @@ if errorlevel 1 (
 
 :: ---------------------------------------------------------------
 :: PASO 4: CREAR ACCESO DIRECTO EN EL ESCRITORIO
-::   Usa C:\Windows\pyw.exe — ruta fija, siempre disponible
 :: ---------------------------------------------------------------
 echo    Creando acceso directo...
-set DESKTOP=%USERPROFILE%\Desktop
-set SHORTCUT=!DESKTOP!\txt2media.lnk
-set LAUNCHERPYW=%~dp0lanzar.pyw
-set ICONPATH=%~dp0assets\icon.ico
-if not exist "!ICONPATH!" set ICONPATH=%SystemRoot%\System32\imageres.dll,11
-
-:: pyw.exe = Python Launcher sin consola, siempre en C:\Windows\
-set PYW=%SystemRoot%\pyw.exe
-
-powershell -NoProfile -Command ^
-  "$s=(New-Object -ComObject WScript.Shell).CreateShortcut('!SHORTCUT!');^
-   $s.TargetPath='!PYW!';^
-   $s.Arguments='\"!LAUNCHERPYW!\"';^
-   $s.WorkingDirectory='%~dp0';^
-   $s.IconLocation='!ICONPATH!';^
-   $s.Description='txt2media v1.0.1';^
-   $s.Save()"
+!PYCMD! "%~dp0crear_acceso.py"
 
 :: ---------------------------------------------------------------
 :: LISTO
