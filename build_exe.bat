@@ -1,65 +1,52 @@
 @echo off
-:: build_exe.bat — Genera txt2media_setup.exe en la carpeta dist\
-:: Requisito: Python 3.13 instalado (ejecuta instalar_universal.bat primero)
+:: build_exe.bat — Genera txt2media.exe portable (sin instalacion, sin admin)
+:: Requisito: Python 3.12+ instalado
 cd /d "%~dp0"
 
 echo.
-echo  Generando txt2media_setup.exe...
+echo  ===================================================
+echo   Generando txt2media.exe (esto toma ~5 minutos)
+echo  ===================================================
 echo.
 
-:: Instalar PyInstaller
+:: Instalar dependencias
+echo  [1/3] Instalando dependencias...
+python -m pip install -e . -q
 python -m pip install pyinstaller -q
 if errorlevel 1 (
-    echo [ERROR] No se pudo instalar PyInstaller.
+    echo [ERROR] Fallo la instalacion de dependencias.
     pause & exit /b 1
 )
 
-:: Inyectar ZIP en bootstrap_installer.py y compilar
-python -c "
-import zipfile, base64, pathlib, os, io
-
-files = ['instalar_universal.bat','lanzar.pyw','crear_acceso.py','txt2media_gui.bat','pyproject.toml']
-if os.path.exists('assets/icon.ico'):
-    files.append('assets/icon.ico')
-for p in pathlib.Path('src').rglob('*.py'):
-    files.append(str(p).replace(chr(92), '/'))
-
-buf = io.BytesIO()
-with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as z:
-    [z.write(f, 'txt2media/'+f) for f in files if os.path.exists(f)]
-
-b64 = base64.b64encode(buf.getvalue()).decode()
-with open('bootstrap_installer.py', encoding='utf-8') as fh:
-    code = fh.read()
-code = code.replace('\"__ZIP_CONTENT__\"', '\"\"\"' + b64 + '\"\"\"', 1)
-with open('bootstrap_filled.py', 'w', encoding='utf-8') as fh:
-    fh.write(code)
-print('ZIP inyectado OK:', len(b64)//1024, 'KB')
-"
-
-if errorlevel 1 (
-    echo [ERROR] No se pudo preparar el bootstrap.
-    pause & exit /b 1
-)
-
-:: Detectar icono
+:: Compilar EXE
+echo  [2/3] Compilando EXE...
 set ICON_OPT=
 if exist "assets\icon.ico" set ICON_OPT=--icon=assets\icon.ico
 
-:: Compilar EXE
-pyinstaller --onefile --noconsole --name txt2media_setup %ICON_OPT% bootstrap_filled.py
-del bootstrap_filled.py >nul 2>&1
+python -m PyInstaller ^
+  --onefile ^
+  --noconsole ^
+  --name txt2media ^
+  --collect-all PySide6 ^
+  --collect-all edge_tts ^
+  --hidden-import pyttsx3 ^
+  --hidden-import keyring.backends.Windows ^
+  --hidden-import langdetect ^
+  %ICON_OPT% ^
+  main_exe.py
 
-if exist "dist\txt2media_setup.exe" (
-    echo.
-    echo  ===================================================
-    echo   EXE listo: dist\txt2media_setup.exe
-    echo   Puedes compartir ese archivo directamente.
-    echo  ===================================================
-    echo.
-    explorer dist
-) else (
-    echo [ERROR] No se genero el EXE.
+if not exist "dist\txt2media.exe" (
+    echo [ERROR] No se genero el EXE. Revisa los mensajes de error arriba.
     pause & exit /b 1
 )
+
+echo  [3/3] Listo.
+echo.
+echo  ===================================================
+echo   EXE generado: dist\txt2media.exe
+echo   Ese archivo abre txt2media con doble clic.
+echo   Sin instalar, sin Python, sin admin.
+echo  ===================================================
+echo.
+explorer dist
 pause
