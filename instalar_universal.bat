@@ -92,29 +92,31 @@ if errorlevel 1 (
 )
 
 :: ---------------------------------------------------------------
-:: PASO 4: CREAR ACCESO DIRECTO EN EL ESCRITORIO
+:: PASO 4: CREAR LANZADOR EN EL ESCRITORIO
 :: ---------------------------------------------------------------
 echo    Creando acceso directo...
 set DESKTOP=%USERPROFILE%\Desktop
-set SHORTCUT=%DESKTOP%\txt2media.lnk
 set LAUNCHERPYW=%~dp0lanzar.pyw
+
+:: Metodo principal: copiar lanzar.pyw al Escritorio (100% confiable)
+copy /y "!LAUNCHERPYW!" "!DESKTOP!\txt2media.pyw" >nul 2>&1
+
+:: Metodo bonus: intentar crear tambien .lnk con icono
+set SHORTCUT=!DESKTOP!\txt2media.lnk
 set ICONPATH=%~dp0assets\icon.ico
-
-for /f "delims=" %%p in ('where pythonw 2^>nul') do if "!PYTHONW!"=="" set PYTHONW=%%p
-if "!PYTHONW!"=="" (
-    for /f "delims=" %%p in ('where python 2^>nul') do if "!PYTHONW!"=="" set PYTHONW=%%p
-)
-
 if not exist "!ICONPATH!" set ICONPATH=%SystemRoot%\System32\imageres.dll,11
-
-powershell -NoProfile -Command ^
-  "$s=(New-Object -ComObject WScript.Shell).CreateShortcut('!SHORTCUT!');^
-   $s.TargetPath='!PYTHONW!';^
-   $s.Arguments='\"!LAUNCHERPYW!\"';^
-   $s.WorkingDirectory='%~dp0';^
-   $s.IconLocation='!ICONPATH!';^
-   $s.Description='txt2media v1.0.1';^
-   $s.Save()" >nul 2>&1
+for /f "delims=" %%p in ('where pythonw 2^>nul') do if "!PYTHONW!"=="" set PYTHONW=%%p
+if "!PYTHONW!"=="" for /f "delims=" %%p in ('where python 2^>nul') do if "!PYTHONW!"=="" set PYTHONW=%%p
+if not "!PYTHONW!"=="" (
+    powershell -NoProfile -Command ^
+      "$s=(New-Object -ComObject WScript.Shell).CreateShortcut('!SHORTCUT!');^
+       $s.TargetPath='!PYTHONW!';^
+       $s.Arguments='\"!LAUNCHERPYW!\"';^
+       $s.WorkingDirectory='%~dp0';^
+       $s.IconLocation='!ICONPATH!';^
+       $s.Description='txt2media v1.0.1';^
+       $s.Save()" >nul 2>&1
+)
 
 :: ---------------------------------------------------------------
 :: LISTO
@@ -127,7 +129,7 @@ echo.
 echo       INSTALACION COMPLETADA
 echo.
 echo       Para usar txt2media:
-echo       Busca el icono "txt2media" en tu Escritorio
+echo       Busca  txt2media.pyw  en tu Escritorio
 echo       y haz doble clic.
 echo.
 echo   ===================================================
