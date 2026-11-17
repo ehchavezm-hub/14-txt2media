@@ -1,5 +1,6 @@
 @echo off
 REM instalar.bat — Configura TODO automáticamente. Ejecutar UNA SOLA VEZ.
+REM NOTA: Para compatibilidad universal (S Mode, 32-bit, ARM) usa instalar_universal.bat
 cd /d "%~dp0"
 set REPO=%~dp0
 
