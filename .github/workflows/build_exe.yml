@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -55,8 +58,11 @@ jobs:
 
       - name: Run PyInstaller
         run: |
-          $icon = if (Test-Path "assets/icon.ico") { "--icon=assets/icon.ico" } else { "" }
-          pyinstaller --onefile --noconsole --name txt2media_setup $icon bootstrap_filled.py
+          if (Test-Path "assets/icon.ico") {
+            pyinstaller --onefile --noconsole --name txt2media_setup --icon=assets/icon.ico bootstrap_filled.py
+          } else {
+            pyinstaller --onefile --noconsole --name txt2media_setup bootstrap_filled.py
+          }
         shell: pwsh
 
       - name: Upload EXE artifact
