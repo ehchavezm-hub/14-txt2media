@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>txt2media · Alcance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: documento de alcance en una columna de lectura; el whiteboard y las tablas usan el ancho completo */
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --ink: #142030;
+  --ink-2: #4a5868;
+  --ink-3: #7c8896;
+  --line: #dde3ea;
+  --accent: #2457d6;
+  --local: #dbe8ff;  --local-t: #1d4ab8;
+  --cloud: #ffe4cc;  --cloud-t: #9a4a0b;
+  --smart: #ffd9e6;  --smart-t: #a3204f;
+  --ok: #dcf3e4;     --ok-t: #1c6b3a;
+  --no: #fde0de;     --no-t: #a3261c;
+  --warn: #fff1c7;   --warn-t: #84600a;
+  --wb-bg: #fbfcfd;  --wb-sec: #f1f4f7;
+  --f-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  --f-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141a; --surface: #172029; --ink: #e8edf2; --ink-2: #aab6c2; --ink-3: #7d8a97; --line: #2a3542;
+    --accent: #7ea4ff;
+    --local: #1b2c4f; --local-t: #a9c4ff;
+    --cloud: #4a2c14; --cloud-t: #ffc895;
+    --smart: #4d1a2e; --smart-t: #ffadc9;
+    --ok: #163824; --ok-t: #9be0b4;
+    --no: #4a1a17; --no-t: #ffaba3;
+    --warn: #43360c; --warn-t: #f5d777;
+    --wb-bg: #131a21; --wb-sec: #1a232d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f141a; --surface: #172029; --ink: #e8edf2; --ink-2: #aab6c2; --ink-3: #7d8a97; --line: #2a3542;
+  --accent: #7ea4ff;
+  --local: #1b2c4f; --local-t: #a9c4ff;
+  --cloud: #4a2c14; --cloud-t: #ffc895;
+  --smart: #4d1a2e; --smart-t: #ffadc9;
+  --ok: #163824; --ok-t: #9be0b4;
+  --no: #4a1a17; --no-t: #ffaba3;
+  --warn: #43360c; --warn-t: #f5d777;
+  --wb-bg: #131a21; --wb-sec: #1a232d;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.6 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+}
+.page { max-width: 1120px; margin: 0 auto; display: grid; gap: 56px; }
+.read { max-width: 72ch; }
+h1, h2, h3 { font-family: var(--f-display); letter-spacing: -0.015em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; font-weight: 700; }
+h2 { font-size: 1.6rem; font-weight: 600; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--f-mono); font-size: .88em; }
+.eyebrow { font: 600 12px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 20px; min-width: 0; }
+.sec-head { display: grid; gap: 8px; }
+.sec-head p { color: var(--ink-2); }
+
+/* Cabecera */
+header.top { display: grid; gap: 18px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+.lead { font-size: 1.15rem; color: var(--ink-2); max-width: 62ch; }
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 500; background: var(--surface); border: 1px solid var(--line); color: var(--ink-2); }
+.chip.st { background: var(--warn); color: var(--warn-t); border-color: transparent; font-weight: 600; }
+
+/* Índice */
+nav.toc ol { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 24px; counter-reset: t; }
+nav.toc li { counter-increment: t; }
+nav.toc a { display: flex; gap: 10px; text-decoration: none; color: var(--ink); padding: 4px 0; }
+nav.toc a::before { content: counter(t, decimal-leading-zero); font: 500 12px/1.9 var(--f-mono); color: var(--ink-3); }
+nav.toc a:hover { color: var(--accent); }
+
+/* Bloques de alcance */
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.panel ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.panel.in h3 { color: var(--ok-t); }
+.panel.out h3 { color: var(--no-t); }
+
+/* Whiteboard */
+.wb-wrap { background: var(--wb-bg); border: 1px solid var(--line); border-radius: 12px; overflow: auto; position: relative; }
+.wb-fit { position: relative; transform-origin: 0 0; }
+.wb-stage { position: relative; margin: 36px 24px 24px; color: var(--ink); font-family: var(--f-body); }
+.wb-arrows { position: absolute; inset: 0; color: var(--ink-2); overflow: visible; }
+.wb-sec { position: absolute; background: var(--wb-sec); border: 1.5px solid var(--line); border-radius: 14px; }
+.wb-sec-t { position: absolute; top: -30px; left: 2px; white-space: nowrap; font: 600 16px/1.2 var(--f-display); color: var(--ink); }
+.wb-sh { position: absolute; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px 12px; font-size: 13.5px; line-height: 1.3; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.wb-sh.k-pill { border-radius: 999px; }
+.wb-sh.k-diamond { border: 0; background: transparent; padding: 0 40px; }
+.wb-sh.k-diamond::before { content: ""; position: absolute; inset: 0; background: var(--smart); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.wb-sh.k-diamond span { position: relative; font-weight: 600; color: var(--smart-t); }
+.wb-sh.c-blue { background: var(--local); color: var(--local-t); border-color: transparent; }
+.wb-sh.c-peach { background: var(--cloud); color: var(--cloud-t); border-color: transparent; }
+.wb-sh.c-pink { background: var(--smart); color: var(--smart-t); border-color: transparent; }
+.wb-tx { position: absolute; color: var(--ink-2); }
+.wb-tx.s-small { font-size: 13px; line-height: 1.4; }
+.wb-tx.c-blue-t { color: var(--accent); font-family: var(--f-mono); font-size: 12px; }
+.wb-note { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; font-size: 13px; color: var(--ink-3); }
+
+/* Pasos */
+.steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; counter-reset: s; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.step h3 { display: flex; gap: 10px; align-items: baseline; }
+.step .n { font: 600 13px/1 var(--f-mono); color: var(--accent); min-width: 2ch; }
+.step p { color: var(--ink-2); font-size: 14px; }
+.step .libs { font: 12px/1.5 var(--f-mono); color: var(--ink-3); }
+
+/* Tablas */
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11.5px/1.3 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); background: var(--surface); }
+tr:last-child td { border-bottom: 0; }
+td b { font-weight: 600; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.t-local { background: var(--local); color: var(--local-t); }
+.t-cloud { background: var(--cloud); color: var(--cloud-t); }
+.t-ok { background: var(--ok); color: var(--ok-t); }
+.t-no { background: var(--no); color: var(--no-t); }
+.t-warn { background: var(--warn); color: var(--warn-t); }
+
+/* Modos */
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.mode { border-radius: 10px; padding: 18px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 6px; align-content: start; }
+.mode .k { font: 600 12px/1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Fases */
+.phases { display: grid; gap: 0; border-left: 2px solid var(--line); margin-left: 8px; }
+.phase { position: relative; padding: 0 0 24px 28px; display: grid; gap: 6px; }
+.phase:last-child { padding-bottom: 0; }
+.phase::before { content: ""; position: absolute; left: -8px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--accent); }
+.phase p { color: var(--ink-2); }
+
+/* Preguntas */
+.qs { display: grid; gap: 12px; counter-reset: q; }
+.q { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--warn-t); border-radius: 8px; padding: 14px 18px; display: grid; gap: 4px; }
+.q p { color: var(--ink-2); font-size: 14px; }
+
+footer { border-top: 1px solid var(--line); padding-top: 20px; font-size: 13px; color: var(--ink-3); display: grid; gap: 6px; }
+
+@media (max-width: 600px) {
+  body { padding-block: 24px 40px; }
+  .page { gap: 44px; }
+}
+@media print {
+  body { background: #fff; padding: 0; font-size: 12px; }
+  .page { gap: 28px; max-width: none; }
+  nav.toc, .no-print { display: none; }
+  .wb-wrap, .tbl { overflow: visible; }
+  section, .step, .panel, .q, tr { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<style>
+/* Diagrama del flujo general de txt2media */
+.flow { display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 0; align-items: stretch; min-width: 860px; }
+.flow-scroll { overflow-x: auto; padding-bottom: 4px; }
+.fcol { display: grid; gap: 8px; align-content: start; position: relative; padding: 0 22px; }
+.fcol + .fcol::before { content: ""; position: absolute; left: -6px; top: 34px; width: 16px; height: 16px; border-top: 2px solid var(--ink-3); border-right: 2px solid var(--ink-3); transform: rotate(45deg); }
+.fcol h3 { font-size: .95rem; padding-bottom: 6px; border-bottom: 2px solid var(--accent); }
+.fbox { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font-size: 13.5px; line-height: 1.35; }
+.fbox small { display: block; color: var(--ink-3); font-family: var(--f-mono); font-size: 11.5px; margin-top: 2px; }
+.fbox.hl { background: var(--smart); color: var(--smart-t); border-color: transparent; font-weight: 600; }
+.fbox.new { border: 1.5px dashed var(--accent); }
+.chain { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.chain .fbox { min-width: 180px; }
+.chain .arr { color: var(--ink-3); font-size: 20px; }
+.tree { font-family: var(--f-mono); font-size: 13px; line-height: 1.7; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; overflow-x: auto; white-space: pre; color: var(--ink-2); }
+.tree b { color: var(--ink); font-weight: 500; }
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 2px; }
+.stat .v { font: 600 1.7rem/1.1 var(--f-display); color: var(--ink); font-variant-numeric: tabular-nums; }
+.stat .l { font-size: 13px; color: var(--ink-3); }
+.part { display: grid; gap: 6px; padding: 18px 0 0; border-top: 3px solid var(--ink); }
+.part .eyebrow { color: var(--ink-3); }
+.legend-row { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-3); }
+.legend-row span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+</style>
+<div class="page">
+
+<header class="top">
+  <span class="eyebrow">Documento de alcance</span>
+  <h1>txt2media</h1>
+  <p class="lead">Aplicación de escritorio para Windows que toma un documento (EPUB, PDF, Word o Markdown) y lo convierte en otros medios: presentación, Word, Excel, Markdown, página web, audio narrado y video con diapositivas.</p>
+  <div class="meta-row">
+    <span class="chip st">Versión 1.0.1 · en producción</span>
+    <span class="chip">Actualizado: 18-11-2026</span>
+    <span class="chip">Python 3.13 · Windows 10/11</span>
+    <span class="chip">Voz predeterminada: es-PE-CamilaNeural</span>
+  </div>
+</header>
+
+<div class="stat-row">
+  <div class="stat"><span class="v">4</span><span class="l">formatos de entrada</span></div>
+  <div class="stat"><span class="v">7</span><span class="l">formatos de salida</span></div>
+  <div class="stat"><span class="v">3</span><span class="l">motores de voz en cadena</span></div>
+  <div class="stat"><span class="v">2</span><span class="l">interfaces: CLI y ventana</span></div>
+  <div class="stat"><span class="v">0</span><span class="l">dependencias GPL o AGPL</span></div>
+</div>
+
+<nav class="toc" aria-label="Contenido">
+  <ol>
+    <li><a href="#que-es">Qué hace</a></li>
+    <li><a href="#flujo-general">Flujo general</a></li>
+    <li><a href="#entradas">Entradas y lectores</a></li>
+    <li><a href="#modelo">Modelo de documento</a></li>
+    <li><a href="#salidas">Salidas y generadores</a></li>
+    <li><a href="#voz">Voz y audio</a></li>
+    <li><a href="#interfaces">Interfaces</a></li>
+    <li><a href="#seguridad">Seguridad y reglas</a></li>
+    <li><a href="#arquitectura">Arquitectura del código</a></li>
+    <li><a href="#estado">Estado y pendientes</a></li>
+  </ol>
+</nav>
+
+
+<!-- A1 -->
+<section id="que-es">
+  <div class="sec-head">
+    <span class="eyebrow">01 · Propósito</span>
+    <h2>Qué hace</h2>
+  </div>
+  <div class="read" style="display:grid;gap:14px">
+    <p>txt2media lee un documento, entiende su estructura (capítulos, títulos, párrafos, listas, tablas, imágenes, notas al pie) y la vuelca en el formato que el usuario pide. El mismo libro puede salir como presentación para una clase, como audiolibro por capítulos para el móvil o como video narrado.</p>
+  </div>
+  <div class="cols">
+    <div class="panel"><h3>Un documento, muchos medios</h3><p>Todos los formatos de salida parten de una sola representación interna del documento, así que la estructura se respeta en cada uno.</p></div>
+    <div class="panel"><h3>Voz natural en español peruano</h3><p>Narración con las voces Camila y Alex (es-PE) y respaldo automático si un motor de voz falla.</p></div>
+    <div class="panel"><h3>Funciona sin internet</h3><p>Modo local estricto: bloquea toda conexión saliente y usa solo la voz SAPI de Windows.</p></div>
+    <div class="panel"><h3>Por lotes</h3><p>Acepta varios archivos a la vez, con progreso y opción de cancelar.</p></div>
+  </div>
+</section>
+
+<!-- A2 -->
+<section id="flujo-general">
+  <div class="sec-head">
+    <span class="eyebrow">02 · Flujo</span>
+    <h2>Flujo general: del archivo al medio</h2>
+    <p>El orquestador recibe la lista de archivos, elige el lector según la extensión y pasa el documento al generador del formato pedido.</p>
+  </div>
+  <div class="flow-scroll">
+    <div class="flow">
+      <div class="fcol">
+        <h3>1 · Entrada</h3>
+        <div class="fbox">EPUB</div>
+        <div class="fbox">PDF</div>
+        <div class="fbox">DOCX</div>
+        <div class="fbox">Markdown</div>
+        <div class="fbox">Uno o varios archivos<small>arrastrar y soltar · CLI</small></div>
+      </div>
+      <div class="fcol">
+        <h3>2 · Lector</h3>
+        <div class="fbox">LectorEPUB<small>zipfile · defusedxml · bs4</small></div>
+        <div class="fbox">LectorPDF<small>pdfplumber · heurística</small></div>
+        <div class="fbox">OCR de respaldo<small>Tesseract, si está instalado</small></div>
+        <div class="fbox">LectorDOCX<small>python-docx</small></div>
+        <div class="fbox">LectorMD<small>markdown-it-py</small></div>
+      </div>
+      <div class="fcol">
+        <h3>3 · Documento</h3>
+        <div class="fbox hl">Modelo único<small style="color:inherit">título · autor · idioma</small></div>
+        <div class="fbox">Secciones<small>capítulos con nivel</small></div>
+        <div class="fbox">Bloques<small>10 tipos</small></div>
+        <div class="fbox">Tablas e imágenes</div>
+      </div>
+      <div class="fcol">
+        <h3>4 · Generador</h3>
+        <div class="fbox">PPTX · DOCX · XLSX<small>python-pptx · python-docx · openpyxl</small></div>
+        <div class="fbox">MD · HTML<small>tema Tableau 10</small></div>
+        <div class="fbox">Audio<small>CadenaVoz</small></div>
+        <div class="fbox">Video<small>Pillow + ffmpeg</small></div>
+      </div>
+      <div class="fcol">
+        <h3>5 · Salida</h3>
+        <div class="fbox">.pptx · .docx · .xlsx</div>
+        <div class="fbox">.md · .html</div>
+        <div class="fbox">.mp3 completo o por capítulos<small>+ cover.jpg + playlist.m3u</small></div>
+        <div class="fbox">.mp4 1920×1080</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- A3 -->
+<section id="entradas">
+  <div class="sec-head">
+    <span class="eyebrow">03 · Entradas</span>
+    <h2>Entradas y lectores</h2>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Formato</th><th>Lector</th><th>Librerías</th><th>Qué recupera</th></tr></thead>
+      <tbody>
+        <tr><td><b>EPUB</b></td><td>LectorEPUB</td><td>zipfile · defusedxml · beautifulsoup4 · lxml</td><td>Título, orden de lectura (spine) y capítulos desde el HTML interno. Evita ebooklib por ser AGPL.</td></tr>
+        <tr><td><b>PDF</b></td><td>LectorPDF + heurística</td><td>pdfplumber · pypdfium2 · langdetect</td><td>Títulos por tamaño y peso de fuente, numeración, dos columnas, encabezados y pies repetidos, números de página, índices, párrafos reconstruidos, continuidad entre páginas, notas al pie, tablas, pies de figura, negritas y cursivas, metadatos, idioma y OCR de respaldo con Tesseract si está instalado.</td></tr>
+        <tr><td><b>DOCX</b></td><td>LectorDOCX</td><td>python-docx</td><td>Estilos de título, párrafos, listas y tablas.</td></tr>
+        <tr><td><b>Markdown</b></td><td>LectorMD</td><td>markdown-it-py</td><td>Encabezados, listas, código, citas y tablas.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- A4 -->
+<section id="modelo">
+  <div class="sec-head">
+    <span class="eyebrow">04 · Modelo</span>
+    <h2>Modelo de documento</h2>
+    <p>Todos los lectores producen la misma estructura y todos los generadores la consumen. Añadir un formato nuevo solo exige un lector o un generador, no tocar el resto.</p>
+  </div>
+<div class="tree"><b>Documento</b>  título · autor · idioma
+└─ <b>Sección</b>  título · nivel (1–6)
+   └─ <b>Bloque</b>  tipo · contenido
+      ├─ PARRAFO     ├─ TITULO      ├─ LISTA
+      ├─ TABLA ─ filas y celdas     ├─ IMAGEN
+      ├─ CODIGO      ├─ CITA        ├─ SEPARADOR
+      ├─ CAPTION     (pie de figura o tabla)
+      └─ NOTA_PIE    (fuera del flujo principal)</div>
+</section>
+
+<!-- A5 -->
+<section id="salidas">
+  <div class="sec-head">
+    <span class="eyebrow">05 · Salidas</span>
+    <h2>Salidas y generadores</h2>
+    <p>Todos los generadores escriben primero en un archivo temporal y luego lo reemplazan de forma atómica.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Formato</th><th>Generador</th><th>Librería</th><th>Resultado</th></tr></thead>
+      <tbody>
+        <tr><td><b>PPTX</b></td><td>GeneradorPPTX</td><td>python-pptx</td><td>Presentación con una diapositiva por sección, tema Tableau 10 y fuente Figtree.</td></tr>
+        <tr><td><b>DOCX</b></td><td>generador_docx</td><td>python-docx</td><td>Documento Word con títulos, listas y tablas.</td></tr>
+        <tr><td><b>XLSX</b></td><td>GeneradorXLSX</td><td>openpyxl</td><td>Libro Excel con una hoja por sección y nombres de hoja seguros y únicos.</td></tr>
+        <tr><td><b>MD</b></td><td>GeneradorMD</td><td>—</td><td>Markdown enriquecido con colores y formato.</td></tr>
+        <tr><td><b>HTML</b></td><td>GeneradorHTML</td><td>—</td><td>Página web con menú lateral y tema Tableau.</td></tr>
+        <tr><td><b>Audio MP3</b></td><td>GeneradorAudio</td><td>CadenaVoz</td><td>Modo completo (un MP3) o por capítulos: <code>01_introduccion.mp3</code>…, <code>cover.jpg</code> 400×600 y <code>playlist.m3u</code> compatible con BookPlayer (iOS).</td></tr>
+        <tr><td><b>Video MP4</b></td><td>GeneradorVideo</td><td>Pillow · ffmpeg (externo)</td><td>Diapositivas PNG 1920×1080 sincronizadas con la narración.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- A6 -->
+<section id="voz">
+  <div class="sec-head">
+    <span class="eyebrow">06 · Voz</span>
+    <h2>Voz y audio</h2>
+    <p>La cadena de voz prueba cada motor en orden y pasa al siguiente si el anterior falla o no está disponible.</p>
+  </div>
+  <div class="chain">
+    <div class="fbox"><b>1 · Azure TTS</b><small>pago · clave en keyring · MP3 24 kHz</small></div>
+    <span class="arr" aria-hidden="true">→</span>
+    <div class="fbox"><b>2 · edge-tts</b><small>gratis · requiere internet</small></div>
+    <span class="arr" aria-hidden="true">→</span>
+    <div class="fbox"><b>3 · SAPI5</b><small>local · solo Windows · sin red</small></div>
+  </div>
+  <div class="cols">
+    <div class="panel"><h3>Voces</h3><p><b>Camila</b> (<code>es-PE-CamilaNeural</code>, predeterminada) y <b>Alex</b> (<code>es-PE-AlexNeural</code>). La CLI acepta los alias <code>camila</code> y <code>alex</code> o el nombre completo de cualquier voz Azure.</p></div>
+    <div class="panel"><h3>Cuota mensual</h3><p>Límite de 500 000 caracteres de síntesis al mes, controlado de forma segura entre hilos para no exceder el plan de Azure.</p></div>
+    <div class="panel"><h3>Textos largos</h3><p>El texto se parte en trozos antes de sintetizarlo y luego se une en un solo MP3 o en uno por capítulo.</p></div>
+  </div>
+</section>
+
+<!-- A7 -->
+<section id="interfaces">
+  <div class="sec-head">
+    <span class="eyebrow">07 · Interfaces</span>
+    <h2>Interfaces</h2>
+  </div>
+  <div class="cols">
+    <div class="panel">
+      <h3>Línea de comandos</h3>
+      <ul>
+        <li><code>convertir</code> archivo(s) con <code>--formato</code> (pptx, docx, xlsx, audio, video, md, html), <code>--salida</code>, <code>--voz</code> y <code>--modo</code> (completo o capitulos).</li>
+        <li><code>clave guardar</code> y <code>clave verificar</code> para las claves de Azure.</li>
+        <li><code>info</code> muestra el estado del sistema (ffmpeg, voces, claves).</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Ventana (PySide6)</h3>
+      <ul>
+        <li>Arrastrar y soltar EPUB, PDF, DOCX y MD.</li>
+        <li>Selector de formato y de voz.</li>
+        <li>Conversión en segundo plano con barra de progreso y botón cancelar.</li>
+        <li>Recuerda el último formato y la última voz usados.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Distribución</h3>
+      <ul>
+        <li>Ejecutable con PyInstaller: versión portable y de un solo archivo.</li>
+        <li>Instaladores <code>.bat</code> y acceso directo en el escritorio.</li>
+        <li>Datos de usuario en <code>%APPDATA%\txt2media</code>; en desarrollo, <code>./datos_dev/</code>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- A8 -->
+<section id="seguridad">
+  <div class="sec-head">
+    <span class="eyebrow">08 · Reglas</span>
+    <h2>Seguridad y reglas del proyecto</h2>
+  </div>
+  <div class="cols">
+    <div class="panel"><h3>Secretos en keyring</h3><p>Las claves se guardan en el Administrador de credenciales de Windows, nunca en JSON ni en registros.</p></div>
+    <div class="panel"><h3>Escritura atómica</h3><p>Cada archivo se escribe en un temporal y se reemplaza con <code>os.replace</code>: nunca queda un archivo a medias.</p></div>
+    <div class="panel"><h3>Modo local estricto</h3><p>Bloquea toda red saliente salvo localhost. Se puede anidar y es seguro entre hilos.</p></div>
+    <div class="panel"><h3>Archivos hostiles</h3><p>Los EPUB se validan contra bombas ZIP y rutas que intentan salir de la carpeta; el XML se lee con defusedxml.</p></div>
+    <div class="panel"><h3>Licencias</h3><p>Solo MIT, BSD, Apache, LGPL, MPL, PSF o HPND. Ninguna dependencia GPL ni AGPL. Detalle en <code>LICENCIAS.md</code>.</p></div>
+  </div>
+</section>
+
+<!-- A9 -->
+<section id="arquitectura">
+  <div class="sec-head">
+    <span class="eyebrow">09 · Código</span>
+    <h2>Arquitectura del código</h2>
+  </div>
+<div class="tree"><b>src/txt2media/</b>
+├─ <b>cli/</b>          main.py: comandos convertir, clave, info
+├─ <b>ui/</b>           ventana_principal.py · worker_conversion.py (hilo de conversión)
+├─ <b>core/</b>         modelo · orquestador · configuración · tema · renderizador
+│                 modo_local · cuota_voz · resumen_local · clases base
+├─ <b>lectores/</b>     lector_epub · lector_pdf · heuristica_pdf · lector_docx · lector_md
+├─ <b>generadores/</b>  pptx · docx · xlsx · md · html · audio · video
+├─ <b>motores/</b>      cadena_voz · motor_azure · motor_edge_tts · motor_sapi
+└─ <b>utils/</b>        rutas · seguridad · temporales · recursos · logging
+<b>tests/</b>            pytest: unitarias, integración y smoke</div>
+</section>
+
+<!-- A10 -->
+<section id="estado">
+  <div class="sec-head">
+    <span class="eyebrow">10 · Estado</span>
+    <h2>Estado y pendientes detectados</h2>
+    <p>Cabos sueltos encontrados al revisar el repositorio. Ninguno impide el uso actual.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Tema</th><th>Situación</th><th>Acción sugerida</th></tr></thead>
+      <tbody>
+        <tr><td>OCR de PDFs escaneados</td><td><span class="tag t-warn">Básico</span> Usa pytesseract solo si el usuario lo instaló aparte.</td><td>Evaluar un OCR más preciso en una versión futura.</td></tr>
+        <tr><td>pytesseract en <code>LICENCIAS.md</code></td><td><span class="tag t-warn">Falta</span> Se usa como opcional pero no está declarado.</td><td>Añadirlo como dependencia opcional (Apache 2.0).</td></tr>
+        <tr><td>moviepy</td><td><span class="tag t-warn">Sin uso</span> Declarado en <code>pyproject.toml</code>; el video se hace con ffmpeg.</td><td>Quitarlo o justificarlo.</td></tr>
+        <tr><td>Resumen local</td><td><span class="tag t-warn">Sin conectar</span> Existe un motor de resumen extractivo sin red, pero ninguna interfaz lo usa.</td><td>Decidir si se ofrece como formato o se elimina.</td></tr>
+        <tr><td>Instrucción de instalación</td><td><span class="tag t-warn">Inconsistente</span> El README instala con Python 3.14 y ejecuta con 3.13.</td><td>Unificar en 3.13.</td></tr>
+        <tr><td>ffmpeg</td><td><span class="tag t-ok">Documentado</span> Requisito externo para video, no se redistribuye.</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <span>txt2media v1.0.1 · documento de alcance · 18-11-2026</span>
+  <span>Describe lo que existe hoy en el repositorio.</span>
+</footer>
+
+</div>
+</body>
+</html>

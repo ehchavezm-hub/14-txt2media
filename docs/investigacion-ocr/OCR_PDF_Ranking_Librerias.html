@@ -1,0 +1,629 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>OCR & PDF — Ranking de Librerías</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500&display=swap">
+
+<style>
+/* Layout: tabla única con cabecera sticky, categorías con color lateral */
+:root {
+  --bg:       #f8f7f4;
+  --surface:  #ffffff;
+  --border:   #e2dfd8;
+  --fg:       #1a1917;
+  --fg2:      #6b6860;
+  --fg3:      #9e9b94;
+  --accent:   #2563eb;
+
+  --cat-pdf:    #0ea5e9;
+  --cat-ocrl:   #22c55e;
+  --cat-ocrc:   #f59e0b;
+  --cat-doc:    #a855f7;
+
+  --star-on:  #f59e0b;
+  --star-off: #d1cfc8;
+
+  --good:   #dcfce7;
+  --good-t: #166534;
+  --warn:   #fef9c3;
+  --warn-t: #854d0e;
+  --paid:   #fee2e2;
+  --paid-t: #991b1b;
+  --free:   #dcfce7;
+  --free-t: #166534;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:      #111110;
+    --surface: #1c1b19;
+    --border:  #2e2d2a;
+    --fg:      #f0ede8;
+    --fg2:     #a09d96;
+    --fg3:     #6b6860;
+    --accent:  #60a5fa;
+    --star-on: #fbbf24;
+    --star-off:#3a3936;
+    --good:    #14532d;
+    --good-t:  #bbf7d0;
+    --warn:    #451a03;
+    --warn-t:  #fde68a;
+    --paid:    #450a0a;
+    --paid-t:  #fca5a5;
+    --free:    #14532d;
+    --free-t:  #bbf7d0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:      #111110;
+  --surface: #1c1b19;
+  --border:  #2e2d2a;
+  --fg:      #f0ede8;
+  --fg2:     #a09d96;
+  --fg3:     #6b6860;
+  --accent:  #60a5fa;
+  --star-on: #fbbf24;
+  --star-off:#3a3936;
+  --good:    #14532d;
+  --good-t:  #bbf7d0;
+  --warn:    #451a03;
+  --warn-t:  #fde68a;
+  --paid:    #450a0a;
+  --paid-t:  #fca5a5;
+  --free:    #14532d;
+  --free-t:  #bbf7d0;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px;
+}
+
+h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  margin: 0 0 4px;
+  color: var(--fg);
+}
+.subtitle {
+  font-size: 13px;
+  color: var(--fg2);
+  margin: 0 0 28px;
+}
+
+/* Filtros */
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.filter-btn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--fg2);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  letter-spacing: .02em;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.filter-btn[data-cat="pdf"].active    { background: var(--cat-pdf);  border-color: var(--cat-pdf); }
+.filter-btn[data-cat="ocrl"].active   { background: var(--cat-ocrl); border-color: var(--cat-ocrl); }
+.filter-btn[data-cat="ocrc"].active   { background: var(--cat-ocrc); border-color: var(--cat-ocrc); }
+.filter-btn[data-cat="doc"].active    { background: var(--cat-doc);  border-color: var(--cat-doc); }
+
+/* Tabla */
+.tbl-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1080px;
+}
+
+thead th {
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 10px 14px;
+  text-align: left;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--fg3);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+thead th:first-child { padding-left: 20px; }
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg); }
+tbody tr[hidden] { display: none; }
+
+tbody td {
+  padding: 11px 14px;
+  vertical-align: middle;
+}
+tbody td:first-child { padding-left: 20px; }
+
+/* Barra de categoría */
+.cat-stripe {
+  width: 4px;
+  border-radius: 2px;
+  display: inline-block;
+  vertical-align: middle;
+  height: 28px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.name-cell { display: flex; align-items: center; }
+.lib-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--fg);
+}
+.lib-sub {
+  font-size: 11px;
+  color: var(--fg3);
+  display: block;
+  margin-top: 1px;
+}
+
+/* Badge de categoría */
+.cat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  white-space: nowrap;
+}
+.cat-pdf  { background: color-mix(in srgb, var(--cat-pdf)  15%, transparent); color: var(--cat-pdf); }
+.cat-ocrl { background: color-mix(in srgb, var(--cat-ocrl) 15%, transparent); color: var(--cat-ocrl); }
+.cat-ocrc { background: color-mix(in srgb, var(--cat-ocrc) 15%, transparent); color: var(--cat-ocrc); }
+.cat-doc  { background: color-mix(in srgb, var(--cat-doc)  15%, transparent); color: var(--cat-doc); }
+
+/* Estrellas */
+.stars { display: flex; gap: 2px; align-items: center; }
+.stars svg { width: 13px; height: 13px; }
+.star-on  { fill: var(--star-on); }
+.star-off { fill: var(--star-off); }
+
+/* Precio badge */
+.price-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.p-free  { background: var(--free); color: var(--free-t); }
+.p-paid  { background: var(--paid); color: var(--paid-t); }
+.p-mixed { background: var(--warn); color: var(--warn-t); }
+
+/* Mejor para */
+.best-for { color: var(--fg2); font-size: 12.5px; max-width: 260px; }
+
+/* Licencia */
+.lic { font-size: 11.5px; color: var(--fg3); font-variant-numeric: tabular-nums; }
+
+/* Leyenda */
+.legend {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--fg3);
+  align-items: center;
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  display: inline-block; vertical-align: middle; margin-right: 4px;
+}
+
+/* Footnote */
+.note {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--fg3);
+  line-height: 1.6;
+}
+
+/* Ventajas / Desventajas */
+.pc ul { list-style: none; margin: 0; padding: 0; font-size: 12px; line-height: 1.45; }
+.pc li { position: relative; padding-left: 16px; margin: 2px 0; color: var(--fg2); }
+.pc li::before { position: absolute; left: 0; top: 0; font-weight: 700; }
+.pc li.pro::before { content: "+"; color: var(--good-t); }
+.pc li.con::before { content: "−"; color: var(--paid-t); }
+.pc li.pro + li.con { margin-top: 6px; }
+tbody td.pc { vertical-align: top; }
+</style>
+
+<h1>OCR &amp; PDF — Ranking de Librerías</h1>
+<p class="subtitle">28 motores y librerías · 4 categorías · precisión, ventajas, desventajas, precio y licencia</p>
+
+<div class="filters">
+  <button class="filter-btn active" data-cat="all">Todos (28)</button>
+  <button class="filter-btn" data-cat="pdf">📄 Lectura PDF</button>
+  <button class="filter-btn" data-cat="ocrl">🖥 OCR Local</button>
+  <button class="filter-btn" data-cat="ocrc">☁️ OCR Cloud</button>
+  <button class="filter-btn" data-cat="doc">📐 Documentos Complejos</button>
+</div>
+
+<div class="tbl-wrap">
+<table id="main-table">
+<thead>
+  <tr>
+    <th style="width:200px">Librería</th>
+    <th>Categoría</th>
+    <th>Mejor para</th>
+    <th style="min-width:300px">Ventajas / Desventajas</th>
+    <th style="width:110px">Precisión</th>
+    <th style="width:160px">Precio</th>
+    <th>Licencia</th>
+  </tr>
+</thead>
+<tbody>
+
+<!-- ════════ LECTURA PDF ════════ -->
+<tr data-cat="pdf">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-pdf)"></span><div><span class="lib-name">PyMuPDF</span><span class="lib-sub">fitz</span></div></div></td>
+  <td><span class="cat-badge cat-pdf">📄 Lectura PDF</span></td>
+  <td class="best-for">Extracción rápida de texto, imágenes y metadatos; planos Revit/AutoCAD con texto vectorial</td>
+  <td class="pc"><ul><li class="pro">Muy rápida (motor MuPDF en C)</li><li class="pro">Texto, imágenes, metadatos y anotaciones en una sola API</li><li class="pro">Excelente con texto vectorial de planos CAD</li><li class="con">Licencia AGPL: obliga a liberar tu código o pagar licencia comercial</li><li class="con">Prohibida por las reglas de txt2media</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-mixed">Gratis / AGPL → comercial $$$</span></td>
+  <td class="lic">AGPL-3.0 / Comercial</td>
+</tr>
+
+<tr data-cat="pdf">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-pdf)"></span><div><span class="lib-name">pdfplumber</span><span class="lib-sub">sobre pdfminer</span></div></div></td>
+  <td><span class="cat-badge cat-pdf">📄 Lectura PDF</span></td>
+  <td class="best-for">Extracción de tablas con detección de bordes; informes financieros con celdas definidas</td>
+  <td class="pc"><ul><li class="pro">Coordenadas exactas de cada palabra y carácter</li><li class="pro">Muy buena extracción de tablas con bordes</li><li class="pro">MIT, pura Python, fácil de empaquetar</li><li class="con">Lenta en PDFs grandes</li><li class="con">Tablas sin bordes requieren ajuste fino</li><li class="con">No hace OCR</li></ul></td>
+  <td><div class="stars">★★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">MIT</td>
+</tr>
+
+<tr data-cat="pdf">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-pdf)"></span><div><span class="lib-name">pypdfium2</span><span class="lib-sub">bindings PDFium</span></div></div></td>
+  <td><span class="cat-badge cat-pdf">📄 Lectura PDF</span></td>
+  <td class="best-for">Renderizado a imagen de alta calidad; compatible con Chrome PDF engine</td>
+  <td class="pc"><ul><li class="pro">Motor PDFium de Chrome: renderiza casi cualquier PDF</li><li class="pro">Rápida y estable; ideal para pasar páginas a imagen antes del OCR</li><li class="pro">Apache 2.0, ruedas precompiladas</li><li class="con">Extracción de texto básica, sin estructura</li><li class="con">API de bajo nivel, poco documentada</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">Apache 2.0</td>
+</tr>
+
+<tr data-cat="pdf">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-pdf)"></span><div><span class="lib-name">pdfminer.six</span><span class="lib-sub">análisis layout</span></div></div></td>
+  <td><span class="cat-badge cat-pdf">📄 Lectura PDF</span></td>
+  <td class="best-for">Análisis detallado de posición de caracteres; documentos con layout irregular</td>
+  <td class="pc"><ul><li class="pro">Control fino del análisis de layout</li><li class="pro">Base sobre la que se construye pdfplumber</li><li class="con">Lenta</li><li class="con">API compleja y verbosa</li><li class="con">Sin extracción de tablas propia</li></ul></td>
+  <td><div class="stars">★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">MIT</td>
+</tr>
+
+<tr data-cat="pdf">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-pdf)"></span><div><span class="lib-name">pypdf</span><span class="lib-sub">ex-PyPDF2</span></div></div></td>
+  <td><span class="cat-badge cat-pdf">📄 Lectura PDF</span></td>
+  <td class="best-for">Manipulación básica: split, merge, cifrado; extracción de texto simple</td>
+  <td class="pc"><ul><li class="pro">Pura Python, sin dependencias</li><li class="pro">Unir, dividir, rotar, cifrar y rellenar formularios</li><li class="con">Extracción de texto pobre en layouts complejos</li><li class="con">Sin tablas ni posiciones fiables</li></ul></td>
+  <td><div class="stars">★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">BSD-3</td>
+</tr>
+
+<tr data-cat="pdf">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-pdf)"></span><div><span class="lib-name">borb</span><span class="lib-sub">PDF toolkit</span></div></div></td>
+  <td><span class="cat-badge cat-pdf">📄 Lectura PDF</span></td>
+  <td class="best-for">Generación programática de PDF; documentos con formularios interactivos</td>
+  <td class="pc"><ul><li class="pro">Genera PDFs desde código con buena API</li><li class="pro">Soporta formularios y anotaciones</li><li class="con">AGPL: prohibida en txt2media</li><li class="con">Comunidad pequeña</li><li class="con">Lectura menos robusta que alternativas</li></ul></td>
+  <td><div class="stars">★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-mixed">Gratis / Enterprise</span></td>
+  <td class="lic">AGPL-3.0</td>
+</tr>
+
+<!-- ════════ OCR LOCAL ════════ -->
+<tr data-cat="ocrl">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrl)"></span><div><span class="lib-name">Tesseract</span><span class="lib-sub">pytesseract</span></div></div></td>
+  <td><span class="cat-badge cat-ocrl">🖥 OCR Local</span></td>
+  <td class="best-for">Estándar de facto offline; +100 idiomas; documentos escaneados B&amp;N; integración simple</td>
+  <td class="pc"><ul><li class="pro">Offline, gratis, más de 100 idiomas (incluye español)</li><li class="pro">Muy documentado y estable</li><li class="pro">No requiere GPU</li><li class="con">Precisión media en escaneos malos, fotos o columnas</li><li class="con">Requiere instalar el binario aparte (no viene con pip)</li><li class="con">Sin comprensión de tablas</li></ul></td>
+  <td><div class="stars">★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">Apache 2.0</td>
+</tr>
+
+<tr data-cat="ocrl">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrl)"></span><div><span class="lib-name">EasyOCR</span><span class="lib-sub">deep learning</span></div></div></td>
+  <td><span class="cat-badge cat-ocrl">🖥 OCR Local</span></td>
+  <td class="best-for">80+ idiomas; imágenes naturales (fotos, señales); fácil de instalar con GPU</td>
+  <td class="pc"><ul><li class="pro">Instalación simple con pip</li><li class="pro">Bueno con fotos y texto en escenas</li><li class="pro">Más de 80 idiomas</li><li class="con">Depende de PyTorch (cientos de MB)</li><li class="con">Lento sin GPU</li><li class="con">Peor que PaddleOCR en documentos densos</li></ul></td>
+  <td><div class="stars">★★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">Apache 2.0</td>
+</tr>
+
+<tr data-cat="ocrl">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrl)"></span><div><span class="lib-name">PaddleOCR</span><span class="lib-sub">Baidu</span></div></div></td>
+  <td><span class="cat-badge cat-ocrl">🖥 OCR Local</span></td>
+  <td class="best-for">Mejor precisión local; tablas, layouts complejos; CJK (chino/japonés/coreano) excelente</td>
+  <td class="pc"><ul><li class="pro">Mejor precisión entre los OCR locales</li><li class="pro">Detecta layout y tablas (PP-Structure)</li><li class="pro">Modelos ligeros disponibles</li><li class="con">Depende de PaddlePaddle: instalación pesada y a veces conflictiva en Windows</li><li class="con">Documentación en parte solo en chino</li><li class="con">Aumenta mucho el tamaño del ejecutable</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">Apache 2.0</td>
+</tr>
+
+<tr data-cat="ocrl">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrl)"></span><div><span class="lib-name">Surya</span><span class="lib-sub">Datalab</span></div></div></td>
+  <td><span class="cat-badge cat-ocrl">🖥 OCR Local</span></td>
+  <td class="best-for">Documentos académicos y científicos; layout detection; texto en columnas múltiples</td>
+  <td class="pc"><ul><li class="pro">Precisión de vanguardia en documentos</li><li class="pro">Detección de layout y orden de lectura</li><li class="pro">Más de 90 idiomas</li><li class="con">Pesos CC-BY-NC (y código GPL): no apto para txt2media</li><li class="con">Necesita GPU para ir rápido</li><li class="con">Proyecto joven, cambia seguido</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-mixed">Gratis CC-BY-NC / Comercial</span></td>
+  <td class="lic">CC-BY-NC-4.0</td>
+</tr>
+
+<tr data-cat="ocrl">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrl)"></span><div><span class="lib-name">TrOCR</span><span class="lib-sub">Microsoft / HuggingFace</span></div></div></td>
+  <td><span class="cat-badge cat-ocrl">🖥 OCR Local</span></td>
+  <td class="best-for">Texto manuscrito; recibos y formularios escritos a mano; requiere GPU para velocidad</td>
+  <td class="pc"><ul><li class="pro">Muy bueno con texto manuscrito</li><li class="pro">Modelo transformer fácil de afinar con HuggingFace</li><li class="con">Reconoce líneas, no páginas: necesita un detector aparte</li><li class="con">Lento sin GPU</li><li class="con">Requiere PyTorch y transformers</li></ul></td>
+  <td><div class="stars">★★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">MIT</td>
+</tr>
+
+<tr data-cat="ocrl">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrl)"></span><div><span class="lib-name">docTR</span><span class="lib-sub">Mindee</span></div></div></td>
+  <td><span class="cat-badge cat-ocrl">🖥 OCR Local</span></td>
+  <td class="best-for">Pipeline end-to-end (detección + reconocimiento); documentos de identidad; API limpia</td>
+  <td class="pc"><ul><li class="pro">Pipeline completo detección + reconocimiento</li><li class="pro">API limpia y moderna</li><li class="pro">Apache 2.0</li><li class="con">Requiere PyTorch o TensorFlow</li><li class="con">Idiomas latinos bien, otros limitados</li><li class="con">Más lento que Tesseract en CPU</li></ul></td>
+  <td><div class="stars">★★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">Apache 2.0</td>
+</tr>
+
+<tr data-cat="ocrl">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrl)"></span><div><span class="lib-name">Calamari</span><span class="lib-sub">manuscritos</span></div></div></td>
+  <td><span class="cat-badge cat-ocrl">🖥 OCR Local</span></td>
+  <td class="best-for">Manuscritos históricos y texto antiguo; archivos y patrimonio documental</td>
+  <td class="pc"><ul><li class="pro">Alta precisión en textos históricos y manuscritos antiguos</li><li class="pro">Entrenable con tus propios datos</li><li class="con">Solo reconoce líneas: necesita segmentación previa</li><li class="con">Nicho; poca utilidad en documentos modernos</li></ul></td>
+  <td><div class="stars">★★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">Apache 2.0</td>
+</tr>
+
+<tr data-cat="ocrl">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrl)"></span><div><span class="lib-name">Kraken</span><span class="lib-sub">modelos custom</span></div></div></td>
+  <td><span class="cat-badge cat-ocrl">🖥 OCR Local</span></td>
+  <td class="best-for">Entrena modelos propios; bidi (árabe, hebreo); investigación y archivos históricos</td>
+  <td class="pc"><ul><li class="pro">Entrena modelos a medida</li><li class="pro">Soporta escritura de derecha a izquierda (árabe, hebreo)</li><li class="pro">Usado en archivos y humanidades digitales</li><li class="con">Curva de aprendizaje alta</li><li class="con">Orientado a investigación, no a producto</li><li class="con">Soporte limitado en Windows</li></ul></td>
+  <td><div class="stars">★★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">Apache 2.0</td>
+</tr>
+
+<!-- ════════ OCR CLOUD ════════ -->
+<tr data-cat="ocrc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrc)"></span><div><span class="lib-name">Azure Document Intelligence</span><span class="lib-sub">Microsoft</span></div></div></td>
+  <td><span class="cat-badge cat-ocrc">☁️ OCR Cloud</span></td>
+  <td class="best-for">Facturas, recibos, contratos; modelos preentrenados por tipo de documento; planos con OCR</td>
+  <td class="pc"><ul><li class="pro">Precisión muy alta; modelos listos para facturas, recibos y contratos</li><li class="pro">Devuelve tablas y pares clave-valor</li><li class="pro">txt2media ya usa Azure (TTS) y keyring</li><li class="con">De pago por página</li><li class="con">Requiere internet y enviar el documento a la nube</li><li class="con">Dependencia de un proveedor</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-paid">$1.50 por 1,000 pág.</span></td>
+  <td class="lic">SaaS Microsoft</td>
+</tr>
+
+<tr data-cat="ocrc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrc)"></span><div><span class="lib-name">Google Cloud Vision</span><span class="lib-sub">Document AI</span></div></div></td>
+  <td><span class="cat-badge cat-ocrc">☁️ OCR Cloud</span></td>
+  <td class="best-for">Texto en imágenes naturales; objetos, logos; >100 idiomas; integración con GCP</td>
+  <td class="pc"><ul><li class="pro">Excelente en imágenes naturales y muchos idiomas</li><li class="pro">Document AI con procesadores especializados</li><li class="con">De pago; configuración de GCP compleja (proyectos, cuentas de servicio)</li><li class="con">Envía datos a la nube</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-paid">$1.50 / 1,000 pág. (Document AI)</span></td>
+  <td class="lic">SaaS Google</td>
+</tr>
+
+<tr data-cat="ocrc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrc)"></span><div><span class="lib-name">Amazon Textract</span><span class="lib-sub">AWS</span></div></div></td>
+  <td><span class="cat-badge cat-ocrc">☁️ OCR Cloud</span></td>
+  <td class="best-for">Formularios y tablas estructuradas; documentos financieros; integración nativa AWS</td>
+  <td class="pc"><ul><li class="pro">Muy bueno en formularios y tablas</li><li class="pro">Integración nativa con S3 y Lambda</li><li class="con">Las tablas y formularios se cobran aparte (más caro)</li><li class="con">Soporte de idiomas más limitado</li><li class="con">Atado al ecosistema AWS</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-paid">$1.50 / 1,000 pág. + tablas $15</span></td>
+  <td class="lic">SaaS Amazon</td>
+</tr>
+
+<tr data-cat="ocrc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrc)"></span><div><span class="lib-name">ABBYY FineReader Cloud</span><span class="lib-sub">ABBYY</span></div></div></td>
+  <td><span class="cat-badge cat-ocrc">☁️ OCR Cloud</span></td>
+  <td class="best-for">Máxima precisión en documentos escaneados complejos; 200 idiomas; líder tradicional</td>
+  <td class="pc"><ul><li class="pro">Referencia histórica en precisión</li><li class="pro">Unos 200 idiomas</li><li class="pro">Salida a PDF buscable, DOCX, etc.</li><li class="con">Caro</li><li class="con">Licenciamiento empresarial poco transparente</li><li class="con">API menos moderna</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-paid">$0.10–$0.80 / pág. según volumen</span></td>
+  <td class="lic">SaaS ABBYY</td>
+</tr>
+
+<tr data-cat="ocrc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrc)"></span><div><span class="lib-name">Mathpix</span><span class="lib-sub">Snip API</span></div></div></td>
+  <td><span class="cat-badge cat-ocrc">☁️ OCR Cloud</span></td>
+  <td class="best-for">Fórmulas matemáticas y LaTeX; documentos científicos; planos con cotas y ecuaciones</td>
+  <td class="pc"><ul><li class="pro">El mejor para fórmulas matemáticas → LaTeX</li><li class="pro">Excelente con papers científicos</li><li class="con">De pago por imagen o página</li><li class="con">Poco valor fuera de contenido técnico o matemático</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-paid">$0.004 / imagen · plan desde $99/mes</span></td>
+  <td class="lic">SaaS Mathpix</td>
+</tr>
+
+<tr data-cat="ocrc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrc)"></span><div><span class="lib-name">Nanonets</span><span class="lib-sub">IDP platform</span></div></div></td>
+  <td><span class="cat-badge cat-ocrc">☁️ OCR Cloud</span></td>
+  <td class="best-for">Extracción con entrenamiento custom low-code; facturas y documentos verticales de negocio</td>
+  <td class="pc"><ul><li class="pro">Entrenamiento de modelos personalizados sin código</li><li class="pro">Flujos de aprobación integrados</li><li class="con">Caro (desde $499/mes)</li><li class="con">Orientado a empresas y procesos de negocio, no a una app de escritorio</li></ul></td>
+  <td><div class="stars">★★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-paid">Desde $499/mes</span></td>
+  <td class="lic">SaaS Nanonets</td>
+</tr>
+
+<tr data-cat="ocrc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-ocrc)"></span><div><span class="lib-name">Mindee</span><span class="lib-sub">docTR cloud</span></div></div></td>
+  <td><span class="cat-badge cat-ocrc">☁️ OCR Cloud</span></td>
+  <td class="best-for">APIs predefinidas para facturas, pasaportes, recibos; developer-friendly</td>
+  <td class="pc"><ul><li class="pro">Capa gratuita (250 páginas/mes)</li><li class="pro">APIs listas para facturas, pasaportes y recibos</li><li class="pro">Muy amigable para desarrolladores</li><li class="con">Modelos limitados a documentos predefinidos</li><li class="con">Envía datos a la nube; precio sube con volumen</li></ul></td>
+  <td><div class="stars">★★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-mixed">250 pág./mes gratis · luego $0.012/pág.</span></td>
+  <td class="lic">SaaS Mindee</td>
+</tr>
+
+<!-- ════════ DOCUMENTOS COMPLEJOS ════════ -->
+<tr data-cat="doc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-doc)"></span><div><span class="lib-name">pymupdf4llm</span><span class="lib-sub">Markdown para LLMs</span></div></div></td>
+  <td><span class="cat-badge cat-doc">📐 Documentos Complejos</span></td>
+  <td class="best-for">Convierte PDF a Markdown preservando estructura; entrada perfecta para RAG y LLMs</td>
+  <td class="pc"><ul><li class="pro">PDF → Markdown limpio en una línea</li><li class="pro">Ideal para alimentar LLMs y RAG</li><li class="con">Hereda la AGPL de PyMuPDF: prohibida en txt2media</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-mixed">PyMuPDF AGPL / Comercial</span></td>
+  <td class="lic">AGPL-3.0 / Comercial</td>
+</tr>
+
+<tr data-cat="doc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-doc)"></span><div><span class="lib-name">unstructured</span><span class="lib-sub">Unstructured.io</span></div></div></td>
+  <td><span class="cat-badge cat-doc">📐 Documentos Complejos</span></td>
+  <td class="best-for">Pipeline universal: PDF, DOCX, HTML, PPT, email → chunks para vector stores</td>
+  <td class="pc"><ul><li class="pro">Un solo pipeline para PDF, DOCX, HTML, PPTX, correos…</li><li class="pro">Divide en fragmentos listos para bases vectoriales</li><li class="con">Instalación muy pesada (muchas dependencias opcionales)</li><li class="con">Las mejores funciones están en la versión cloud de pago</li><li class="con">Resultados variables según el backend</li></ul></td>
+  <td><div class="stars">★★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-mixed">Apache 2.0 (self) / Cloud $$$</span></td>
+  <td class="lic">Apache 2.0</td>
+</tr>
+
+<tr data-cat="doc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-doc)"></span><div><span class="lib-name">marker</span><span class="lib-sub">Datalab (Surya)</span></div></div></td>
+  <td><span class="cat-badge cat-doc">📐 Documentos Complejos</span></td>
+  <td class="best-for">PDF → Markdown de alta calidad; papers científicos con fórmulas; tablas complejas</td>
+  <td class="pc"><ul><li class="pro">Conversión PDF → Markdown de muy alta calidad</li><li class="pro">Maneja fórmulas, tablas y columnas</li><li class="con">Pesos CC-BY-NC (y código GPL en versiones recientes): no apto</li><li class="con">Requiere GPU para buen rendimiento</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-mixed">Gratis CC-BY-NC / Comercial</span></td>
+  <td class="lic">CC-BY-NC-4.0</td>
+</tr>
+
+<tr data-cat="doc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-doc)"></span><div><span class="lib-name">nougat</span><span class="lib-sub">Meta AI</span></div></div></td>
+  <td><span class="cat-badge cat-doc">📐 Documentos Complejos</span></td>
+  <td class="best-for">Artículos académicos con LaTeX; fórmulas matemáticas complejas; requiere GPU</td>
+  <td class="pc"><ul><li class="pro">Excelente con artículos académicos y LaTeX</li><li class="pro">Recupera fórmulas complejas</li><li class="con">Pesos CC-BY-NC: no comercial</li><li class="con">Requiere GPU; puede “alucinar” texto repetido</li><li class="con">Proyecto prácticamente sin mantenimiento</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">MIT / CC-BY-NC</td>
+</tr>
+
+<tr data-cat="doc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-doc)"></span><div><span class="lib-name">layoutparser</span><span class="lib-sub">Allen AI</span></div></div></td>
+  <td><span class="cat-badge cat-doc">📐 Documentos Complejos</span></td>
+  <td class="best-for">Análisis de layout visual (columnas, figuras, cabeceras); documentos con diseño complejo</td>
+  <td class="pc"><ul><li class="pro">Detecta bloques visuales: columnas, figuras, títulos</li><li class="pro">Modelos preentrenados de layout</li><li class="con">Proyecto poco mantenido</li><li class="con">Depende de Detectron2 (difícil de instalar en Windows)</li><li class="con">No hace OCR por sí solo</li></ul></td>
+  <td><div class="stars">★★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">Apache 2.0</td>
+</tr>
+
+<tr data-cat="doc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-doc)"></span><div><span class="lib-name">deepdoctection</span><span class="lib-sub">Ibm Research</span></div></div></td>
+  <td><span class="cat-badge cat-doc">📐 Documentos Complejos</span></td>
+  <td class="best-for">Framework de análisis documental con múltiples backends; tablas anidadas; planos técnicos</td>
+  <td class="pc"><ul><li class="pro">Orquesta varios motores (OCR, layout, tablas)</li><li class="pro">Bueno con tablas anidadas</li><li class="con">Configuración compleja</li><li class="con">Muchas dependencias pesadas (PyTorch/TF, Detectron2)</li></ul></td>
+  <td><div class="stars">★★★★<svg viewBox="0 0 24 24"><path class="star-off" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">Apache 2.0</td>
+</tr>
+
+<tr data-cat="doc">
+  <td><div class="name-cell"><span class="cat-stripe" style="background:var(--cat-doc)"></span><div><span class="lib-name">docling</span><span class="lib-sub">IBM Research 2024</span></div></div></td>
+  <td><span class="cat-badge cat-doc">📐 Documentos Complejos</span></td>
+  <td class="best-for">PDF/DOCX/PPTX → estructura JSON/Markdown; tablas, figuras, lectura de orden; para RAG</td>
+  <td class="pc"><ul><li class="pro">Devuelve el documento estructurado (títulos, párrafos, tablas, figuras, orden de lectura)</li><li class="pro">Lee PDF, DOCX, PPTX y HTML</li><li class="pro">MIT y mantenido activamente por IBM</li><li class="con">Descarga modelos de IA (cientos de MB)</li><li class="con">Más lento que pdfplumber en PDFs simples</li><li class="con">Proyecto reciente: API todavía cambia</li></ul></td>
+  <td><div class="stars">★★★★★</div></td>
+  <td><span class="price-badge p-free">Gratuito</span></td>
+  <td class="lic">MIT</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+
+<div class="legend">
+  <span><span class="legend-dot" style="background:var(--cat-pdf)"></span>Lectura PDF</span>
+  <span><span class="legend-dot" style="background:var(--cat-ocrl)"></span>OCR Local</span>
+  <span><span class="legend-dot" style="background:var(--cat-ocrc)"></span>OCR Cloud</span>
+  <span><span class="legend-dot" style="background:var(--cat-doc)"></span>Documentos Complejos</span>
+  <span style="margin-left:8px"><span class="price-badge p-free" style="font-size:10px">Verde</span> = gratis</span>
+  <span><span class="price-badge p-mixed" style="font-size:10px">Naranja</span> = freemium</span>
+  <span><span class="price-badge p-paid" style="font-size:10px">Rojo</span> = pago</span>
+</div>
+<p class="note">★ Precisión relativa en documentos impresos típicos. Planos CAD/Revit con texto vectorial: usar PyMuPDF o pypdfium2 (sin OCR). Planos escaneados o con imagen: PaddleOCR, Azure Document Intelligence o Surya. Verde (+) = ventaja · rojo (−) = desventaja. Precios cloud aprox. a Nov-2026, varían por región y volumen.</p>
+
+<script>
+const btns = document.querySelectorAll('.filter-btn');
+const rows = document.querySelectorAll('#main-table tbody tr');
+
+btns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    btns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    rows.forEach(row => {
+      row.hidden = cat !== 'all' && row.dataset.cat !== cat;
+    });
+  });
+});
+
+// Estrellas como texto para accesibilidad
+document.querySelectorAll('.stars').forEach(el => {
+  const count = el.querySelectorAll('path.star-on').length || el.textContent.split('★').length - 1;
+  el.setAttribute('aria-label', count + ' de 5 estrellas');
+});
+</script>
+
+</body></html>

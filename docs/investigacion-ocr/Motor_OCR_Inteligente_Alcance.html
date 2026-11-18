@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Motor OCR Inteligente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: documento de alcance en una columna de lectura; el whiteboard y las tablas usan el ancho completo */
+:root {
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --ink: #142030;
+  --ink-2: #4a5868;
+  --ink-3: #7c8896;
+  --line: #dde3ea;
+  --accent: #2457d6;
+  --local: #dbe8ff;  --local-t: #1d4ab8;
+  --cloud: #ffe4cc;  --cloud-t: #9a4a0b;
+  --smart: #ffd9e6;  --smart-t: #a3204f;
+  --ok: #dcf3e4;     --ok-t: #1c6b3a;
+  --no: #fde0de;     --no-t: #a3261c;
+  --warn: #fff1c7;   --warn-t: #84600a;
+  --wb-bg: #fbfcfd;  --wb-sec: #f1f4f7;
+  --f-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  --f-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --f-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141a; --surface: #172029; --ink: #e8edf2; --ink-2: #aab6c2; --ink-3: #7d8a97; --line: #2a3542;
+    --accent: #7ea4ff;
+    --local: #1b2c4f; --local-t: #a9c4ff;
+    --cloud: #4a2c14; --cloud-t: #ffc895;
+    --smart: #4d1a2e; --smart-t: #ffadc9;
+    --ok: #163824; --ok-t: #9be0b4;
+    --no: #4a1a17; --no-t: #ffaba3;
+    --warn: #43360c; --warn-t: #f5d777;
+    --wb-bg: #131a21; --wb-sec: #1a232d;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f141a; --surface: #172029; --ink: #e8edf2; --ink-2: #aab6c2; --ink-3: #7d8a97; --line: #2a3542;
+  --accent: #7ea4ff;
+  --local: #1b2c4f; --local-t: #a9c4ff;
+  --cloud: #4a2c14; --cloud-t: #ffc895;
+  --smart: #4d1a2e; --smart-t: #ffadc9;
+  --ok: #163824; --ok-t: #9be0b4;
+  --no: #4a1a17; --no-t: #ffaba3;
+  --warn: #43360c; --warn-t: #f5d777;
+  --wb-bg: #131a21; --wb-sec: #1a232d;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.6 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+}
+.page { max-width: 1120px; margin: 0 auto; display: grid; gap: 56px; }
+.read { max-width: 72ch; }
+h1, h2, h3 { font-family: var(--f-display); letter-spacing: -0.015em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.05; font-weight: 700; }
+h2 { font-size: 1.6rem; font-weight: 600; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--f-mono); font-size: .88em; }
+.eyebrow { font: 600 12px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+section { display: grid; gap: 20px; min-width: 0; }
+.sec-head { display: grid; gap: 8px; }
+.sec-head p { color: var(--ink-2); }
+
+/* Cabecera */
+header.top { display: grid; gap: 18px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+.lead { font-size: 1.15rem; color: var(--ink-2); max-width: 62ch; }
+.meta-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 500; background: var(--surface); border: 1px solid var(--line); color: var(--ink-2); }
+.chip.st { background: var(--warn); color: var(--warn-t); border-color: transparent; font-weight: 600; }
+
+/* Índice */
+nav.toc ol { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 24px; counter-reset: t; }
+nav.toc li { counter-increment: t; }
+nav.toc a { display: flex; gap: 10px; text-decoration: none; color: var(--ink); padding: 4px 0; }
+nav.toc a::before { content: counter(t, decimal-leading-zero); font: 500 12px/1.9 var(--f-mono); color: var(--ink-3); }
+nav.toc a:hover { color: var(--accent); }
+
+/* Bloques de alcance */
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.panel ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.panel.in h3 { color: var(--ok-t); }
+.panel.out h3 { color: var(--no-t); }
+
+/* Whiteboard */
+.wb-wrap { background: var(--wb-bg); border: 1px solid var(--line); border-radius: 12px; overflow: auto; position: relative; }
+.wb-fit { position: relative; transform-origin: 0 0; }
+.wb-stage { position: relative; margin: 36px 24px 24px; color: var(--ink); font-family: var(--f-body); }
+.wb-arrows { position: absolute; inset: 0; color: var(--ink-2); overflow: visible; }
+.wb-sec { position: absolute; background: var(--wb-sec); border: 1.5px solid var(--line); border-radius: 14px; }
+.wb-sec-t { position: absolute; top: -30px; left: 2px; white-space: nowrap; font: 600 16px/1.2 var(--f-display); color: var(--ink); }
+.wb-sh { position: absolute; display: flex; align-items: center; justify-content: center; text-align: center; padding: 6px 12px; font-size: 13.5px; line-height: 1.3; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.wb-sh.k-pill { border-radius: 999px; }
+.wb-sh.k-diamond { border: 0; background: transparent; padding: 0 40px; }
+.wb-sh.k-diamond::before { content: ""; position: absolute; inset: 0; background: var(--smart); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.wb-sh.k-diamond span { position: relative; font-weight: 600; color: var(--smart-t); }
+.wb-sh.c-blue { background: var(--local); color: var(--local-t); border-color: transparent; }
+.wb-sh.c-peach { background: var(--cloud); color: var(--cloud-t); border-color: transparent; }
+.wb-sh.c-pink { background: var(--smart); color: var(--smart-t); border-color: transparent; }
+.wb-tx { position: absolute; color: var(--ink-2); }
+.wb-tx.s-small { font-size: 13px; line-height: 1.4; }
+.wb-tx.c-blue-t { color: var(--accent); font-family: var(--f-mono); font-size: 12px; }
+.wb-note { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; font-size: 13px; color: var(--ink-3); }
+
+/* Pasos */
+.steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; counter-reset: s; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.step h3 { display: flex; gap: 10px; align-items: baseline; }
+.step .n { font: 600 13px/1 var(--f-mono); color: var(--accent); min-width: 2ch; }
+.step p { color: var(--ink-2); font-size: 14px; }
+.step .libs { font: 12px/1.5 var(--f-mono); color: var(--ink-3); }
+
+/* Tablas */
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 11.5px/1.3 var(--f-display); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); background: var(--surface); }
+tr:last-child td { border-bottom: 0; }
+td b { font-weight: 600; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.t-local { background: var(--local); color: var(--local-t); }
+.t-cloud { background: var(--cloud); color: var(--cloud-t); }
+.t-ok { background: var(--ok); color: var(--ok-t); }
+.t-no { background: var(--no); color: var(--no-t); }
+.t-warn { background: var(--warn); color: var(--warn-t); }
+
+/* Modos */
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+.mode { border-radius: 10px; padding: 18px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 6px; align-content: start; }
+.mode .k { font: 600 12px/1 var(--f-display); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+
+/* Fases */
+.phases { display: grid; gap: 0; border-left: 2px solid var(--line); margin-left: 8px; }
+.phase { position: relative; padding: 0 0 24px 28px; display: grid; gap: 6px; }
+.phase:last-child { padding-bottom: 0; }
+.phase::before { content: ""; position: absolute; left: -8px; top: 4px; width: 14px; height: 14px; border-radius: 50%; background: var(--surface); border: 3px solid var(--accent); }
+.phase p { color: var(--ink-2); }
+
+/* Preguntas */
+.qs { display: grid; gap: 12px; counter-reset: q; }
+.q { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--warn-t); border-radius: 8px; padding: 14px 18px; display: grid; gap: 4px; }
+.q p { color: var(--ink-2); font-size: 14px; }
+
+footer { border-top: 1px solid var(--line); padding-top: 20px; font-size: 13px; color: var(--ink-3); display: grid; gap: 6px; }
+
+@media (max-width: 600px) {
+  body { padding-block: 24px 40px; }
+  .page { gap: 44px; }
+}
+@media print {
+  body { background: #fff; padding: 0; font-size: 12px; }
+  .page { gap: 28px; max-width: none; }
+  nav.toc, .no-print { display: none; }
+  .wb-wrap, .tbl { overflow: visible; }
+  section, .step, .panel, .q, tr { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="top">
+  <span class="eyebrow">Documento de alcance · propuesta</span>
+  <h1>Motor OCR Inteligente</h1>
+  <p class="lead">Una aplicación que convierte cualquier documento (PDF, escaneo o foto) en texto y estructura fiables. Analiza cada página y la envía al motor de OCR que mejor la resuelve, con un control de confianza que escala a motores más potentes solo cuando hace falta.</p>
+  <div class="meta-row">
+    <span class="chip st">Estado: diseño, sin desarrollar</span>
+    <span class="chip">Fecha: 18-11-2026</span>
+    <span class="chip">Relacionado: txt2media v1.0.1</span>
+    <span class="chip">Python 3.13 · Windows</span>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Contenido">
+  <ol>
+    <li><a href="#objetivo">Objetivo y principios</a></li>
+    <li><a href="#alcance">Qué incluye y qué no</a></li>
+    <li><a href="#flujo">Whiteboard del flujo</a></li>
+    <li><a href="#pasos">Los 11 pasos</a></li>
+    <li><a href="#motores">Matriz de motores</a></li>
+    <li><a href="#inteligencia">Cómo decide</a></li>
+    <li><a href="#es">Entradas y salidas</a></li>
+    <li><a href="#licencias">Licencias y reglas</a></li>
+    <li><a href="#librerias">Catálogo de librerías</a></li>
+    <li><a href="#fases">Fases de desarrollo</a></li>
+    <li><a href="#riesgos">Riesgos</a></li>
+    <li><a href="#pendientes">Decisiones pendientes</a></li>
+  </ol>
+</nav>
+
+<!-- 1 -->
+<section id="objetivo">
+  <div class="sec-head">
+    <span class="eyebrow">01 · Objetivo</span>
+    <h2>Lo más potente posible, sin malgastar</h2>
+  </div>
+  <div class="read" style="display:grid;gap:14px">
+    <p>Ninguna librería de OCR es la mejor en todo. Tesseract es ligero pero falla con fotos; PaddleOCR es el más preciso en local pero pesa; Azure lee manuscritos y formularios mejor que cualquiera, pero cuesta dinero y saca el documento del equipo. La potencia de esta app sale de <b>combinarlas</b>: cada página recibe al especialista adecuado.</p>
+  </div>
+  <div class="cols">
+    <div class="panel"><h3>Primero lo barato</h3><p>Una página con texto digital nunca pasa por OCR: se extrae directo, exacta e instantánea.</p></div>
+    <div class="panel"><h3>Confianza medida</h3><p>Cada resultado lleva un puntaje. Si es bajo, la página sube al siguiente motor más fuerte.</p></div>
+    <div class="panel"><h3>El usuario manda</h3><p>Modo privado, equilibrado o máxima precisión, con un tope de gasto por documento.</p></div>
+    <div class="panel"><h3>Mejora con el uso</h3><p>Registra qué motor ganó en cada tipo de página y ajusta sus reglas.</p></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="alcance">
+  <div class="sec-head">
+    <span class="eyebrow">02 · Alcance</span>
+    <h2>Qué incluye y qué no</h2>
+  </div>
+  <div class="cols">
+    <div class="panel in">
+      <h3>Dentro del alcance</h3>
+      <ul>
+        <li>PDF digital, PDF escaneado, imágenes (JPG, PNG, TIFF), fotos de móvil, DOCX y PPTX con imágenes.</li>
+        <li>Archivo suelto o lote completo (carpeta).</li>
+        <li>Diagnóstico automático por página y enrutamiento al motor adecuado.</li>
+        <li>Limpieza de imagen: enderezar, quitar ruido, contraste, ampliar, recortar.</li>
+        <li>Texto impreso, tablas, manuscritos, fórmulas, formularios y facturas.</li>
+        <li>Control de confianza con escalado automático y votación entre motores.</li>
+        <li>Corrección ortográfica y de errores típicos de OCR.</li>
+        <li>Salidas: texto, Markdown, JSON con posiciones, PDF buscable, Word y Excel.</li>
+        <li>Integración con txt2media (audio, video, Office).</li>
+        <li>Informe por documento: motor usado, confianza y costo por página.</li>
+      </ul>
+    </div>
+    <div class="panel out">
+      <h3>Fuera del alcance (por ahora)</h3>
+      <ul>
+        <li>Librerías AGPL, GPL o de uso no comercial (ver sección 08).</li>
+        <li>Entrenar modelos de OCR propios desde cero.</li>
+        <li>Traducción automática del texto reconocido.</li>
+        <li>Edición visual del PDF original.</li>
+        <li>Servidor web o servicio multiusuario: es una app de escritorio.</li>
+        <li>Video o audio como entrada (eso ya lo cubre txt2media en sentido inverso).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="flujo">
+  <div class="sec-head">
+    <span class="eyebrow">03 · Flujo</span>
+    <h2>Del archivo origen al resultado</h2>
+    <p>Whiteboard del recorrido completo. Se lee de izquierda a derecha; la segunda fila continúa desde el paso 6. <span class="no-print">En pantallas pequeñas se puede desplazar hacia los lados.</span></p>
+  </div>
+  <div class="wb-wrap" id="wbWrap"><div class="wb-fit" id="wbFit"><div class="wb-stage" id="wbStage" style="width:1760px;height:1340px"><svg class="wb-arrows" width="1760" height="1340" viewBox="0 0 1760 1340" aria-hidden="true"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs><g fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"><path d="M242,410.0 H300"/><path d="M546,410.0 H604"/><path d="M850,410.0 H908"/><path d="M1154,410.0 H1212"/><path d="M1458,410.0 H1516"/><path d="M1640.0,702 V758.0 H260 V856"/><path d="M302,1095.0 H360"/><path d="M666,1095.0 H724"/><path d="M1030,1095.0 H1088"/><path d="M1394,1095.0 H1452"/></g></svg><div class="wb-sec" style="left:0px;top:120px;width:240px;height:580px"><span class="wb-sec-t">1 · Archivo origen</span></div><div class="wb-sec" style="left:304px;top:120px;width:240px;height:580px"><span class="wb-sec-t">2 · Ingesta</span></div><div class="wb-sec" style="left:608px;top:120px;width:240px;height:580px"><span class="wb-sec-t">3 · Diagnóstico por página</span></div><div class="wb-sec" style="left:912px;top:120px;width:240px;height:580px"><span class="wb-sec-t">4 · Limpieza de imagen</span></div><div class="wb-sec" style="left:1216px;top:120px;width:240px;height:580px"><span class="wb-sec-t">5 · Enrutador</span></div><div class="wb-sec" style="left:1520px;top:120px;width:240px;height:580px"><span class="wb-sec-t">6 · Motores especialistas</span></div><div class="wb-sec" style="left:0px;top:860px;width:300px;height:470px"><span class="wb-sec-t">7 · Control de confianza</span></div><div class="wb-sec" style="left:364px;top:860px;width:300px;height:470px"><span class="wb-sec-t">8 · Fusión y votación</span></div><div class="wb-sec" style="left:728px;top:860px;width:300px;height:470px"><span class="wb-sec-t">9 · Corrección</span></div><div class="wb-sec" style="left:1092px;top:860px;width:300px;height:470px"><span class="wb-sec-t">10 · Resultados</span></div><div class="wb-sec" style="left:1456px;top:860px;width:300px;height:470px"><span class="wb-sec-t">11 · Aprendizaje</span></div><div class="wb-sh k-pill c-blue" style="left:0px;top:0px;width:280px;height:44px"><span>Motor local: gratis y privado</span></div><div class="wb-sh k-pill c-peach" style="left:304px;top:0px;width:280px;height:44px"><span>Motor en la nube: de pago</span></div><div class="wb-sh k-pill c-pink" style="left:608px;top:0px;width:280px;height:44px"><span>Decisión inteligente</span></div><div class="wb-sh k-rounded c-white" style="left:24px;top:144px;width:192px;height:56px"><span>PDF digital</span></div><div class="wb-sh k-rounded c-white" style="left:24px;top:216px;width:192px;height:56px"><span>PDF escaneado</span></div><div class="wb-sh k-rounded c-white" style="left:24px;top:288px;width:192px;height:56px"><span>Imagen: JPG, PNG, TIFF</span></div><div class="wb-sh k-rounded c-white" style="left:24px;top:360px;width:192px;height:56px"><span>Foto tomada con el móvil</span></div><div class="wb-sh k-rounded c-white" style="left:24px;top:432px;width:192px;height:56px"><span>DOCX o PPTX con imágenes</span></div><div class="wb-tx s-small" style="left:24px;top:504px;width:192px;">Un archivo suelto o un lote completo (carpeta).</div><div class="wb-sh k-rounded c-white" style="left:328px;top:144px;width:192px;height:80px"><span>Detecta el tipo real del archivo, no solo la extensión</span></div><div class="wb-sh k-rounded c-white" style="left:328px;top:240px;width:192px;height:80px"><span>Huella SHA-256: si ya se procesó, usa la caché</span></div><div class="wb-sh k-rounded c-white" style="left:328px;top:336px;width:192px;height:80px"><span>Separa en páginas para procesarlas en paralelo</span></div><div class="wb-sh k-rounded c-white" style="left:328px;top:432px;width:192px;height:80px"><span>Convierte a imagen a 300 DPI, solo si hace falta</span></div><div class="wb-tx s-small c-blue-t" style="left:328px;top:532px;width:192px;">pypdfium2 · Pillow</div><div class="wb-sh k-rounded c-white" style="left:632px;top:144px;width:192px;height:64px"><span>¿Tiene texto digital legible?</span></div><div class="wb-sh k-rounded c-white" style="left:632px;top:224px;width:192px;height:64px"><span>¿Calidad? DPI, inclinación, ruido</span></div><div class="wb-sh k-rounded c-white" style="left:632px;top:304px;width:192px;height:80px"><span>¿Hay tablas, fórmulas o escritura a mano?</span></div><div class="wb-sh k-rounded c-white" style="left:632px;top:400px;width:192px;height:48px"><span>¿Qué idioma?</span></div><div class="wb-sh k-rounded c-white" style="left:632px;top:464px;width:192px;height:80px"><span><b>Ficha de la página</b><br>tipo · calidad · contenido · idioma</span></div><div class="wb-tx s-small c-blue-t" style="left:632px;top:564px;width:192px;">pdfplumber · langdetect · detector de layout</div><div class="wb-tx s-small" style="left:936px;top:144px;width:192px;">Solo páginas escaneadas o fotos. El texto digital salta este paso.</div><div class="wb-sh k-rounded c-white" style="left:936px;top:220px;width:192px;height:48px"><span>Endereza la página</span></div><div class="wb-sh k-rounded c-white" style="left:936px;top:284px;width:192px;height:48px"><span>Quita ruido y sombras</span></div><div class="wb-sh k-rounded c-white" style="left:936px;top:348px;width:192px;height:64px"><span>Ajusta contraste y binariza</span></div><div class="wb-sh k-rounded c-white" style="left:936px;top:428px;width:192px;height:64px"><span>Amplía si está bajo 300 DPI</span></div><div class="wb-sh k-rounded c-white" style="left:936px;top:508px;width:192px;height:48px"><span>Recorta bordes negros</span></div><div class="wb-tx s-small c-blue-t" style="left:936px;top:576px;width:192px;">OpenCV · Pillow</div><div class="wb-sh k-rounded c-pink" style="left:1240px;top:144px;width:192px;height:112px"><span><b>Elige el motor</b><br>según la ficha, el modo y el presupuesto</span></div><div class="wb-tx s-small" style="left:1240px;top:272px;width:192px;">Modo que elige el usuario:</div><div class="wb-sh k-rounded c-white" style="left:1240px;top:308px;width:192px;height:64px"><span><b>Privado:</b> solo motores locales</span></div><div class="wb-sh k-rounded c-white" style="left:1240px;top:388px;width:192px;height:80px"><span><b>Equilibrado:</b> nube solo si lo local no alcanza</span></div><div class="wb-sh k-rounded c-white" style="left:1240px;top:484px;width:192px;height:64px"><span><b>Máxima precisión:</b> el mejor motor siempre</span></div><div class="wb-sh k-rounded c-white" style="left:1240px;top:564px;width:192px;height:48px"><span>Tope de USD por documento</span></div><div class="wb-sh k-rounded c-blue" style="left:1544px;top:144px;width:192px;height:56px"><span>Texto digital → pdfplumber</span></div><div class="wb-sh k-rounded c-blue" style="left:1544px;top:208px;width:192px;height:56px"><span>Estructura y tablas → docling</span></div><div class="wb-sh k-rounded c-blue" style="left:1544px;top:272px;width:192px;height:56px"><span>Impreso escaneado → RapidOCR / PaddleOCR</span></div><div class="wb-sh k-rounded c-blue" style="left:1544px;top:336px;width:192px;height:56px"><span>Escaneo simple → Tesseract</span></div><div class="wb-sh k-rounded c-blue" style="left:1544px;top:400px;width:192px;height:56px"><span>Manuscrito → TrOCR</span></div><div class="wb-sh k-rounded c-blue" style="left:1544px;top:464px;width:192px;height:56px"><span>Fórmulas → pix2tex</span></div><div class="wb-sh k-rounded c-peach" style="left:1544px;top:528px;width:192px;height:56px"><span>Formularios y facturas → Azure Document Intelligence</span></div><div class="wb-sh k-rounded c-peach" style="left:1544px;top:592px;width:192px;height:56px"><span>Página imposible → IA de visión</span></div><div class="wb-sh k-diamond c-pink" style="left:24px;top:884px;width:252px;height:120px"><span>¿Confianza ≥ 90 %?</span></div><div class="wb-sh k-rounded c-white" style="left:24px;top:1020px;width:252px;height:48px"><span><b>Sí:</b> pasa al paso 8</span></div><div class="wb-sh k-rounded c-white" style="left:24px;top:1084px;width:252px;height:64px"><span><b>No:</b> reintenta con el siguiente motor más fuerte</span></div><div class="wb-tx s-small" style="left:24px;top:1164px;width:252px;">Escalera: Tesseract → PaddleOCR → Azure → IA de visión.<br>Máximo 3 intentos o hasta el tope de USD.</div><div class="wb-sh k-rounded c-white" style="left:388px;top:884px;width:252px;height:64px"><span>Une el texto con la estructura de docling</span></div><div class="wb-sh k-rounded c-white" style="left:388px;top:964px;width:252px;height:64px"><span>Documento crítico: 2 motores en paralelo</span></div><div class="wb-sh k-rounded c-white" style="left:388px;top:1044px;width:252px;height:48px"><span>Compara palabra por palabra</span></div><div class="wb-sh k-rounded c-white" style="left:388px;top:1108px;width:252px;height:64px"><span>Si no coinciden, decide un tercero</span></div><div class="wb-sh k-rounded c-white" style="left:752px;top:884px;width:252px;height:48px"><span>Corrector ortográfico por idioma</span></div><div class="wb-sh k-rounded c-white" style="left:752px;top:948px;width:252px;height:64px"><span>Arregla confusiones típicas: rn→m, 0→O, l→1</span></div><div class="wb-sh k-rounded c-white" style="left:752px;top:1028px;width:252px;height:48px"><span>Une palabras cortadas por guion</span></div><div class="wb-sh k-rounded c-white" style="left:752px;top:1092px;width:252px;height:64px"><span>Marca las palabras dudosas para revisión</span></div><div class="wb-sh k-rounded c-white" style="left:752px;top:1172px;width:252px;height:48px"><span>Opcional: una IA pule el texto</span></div><div class="wb-sh k-rounded c-white" style="left:1116px;top:884px;width:252px;height:48px"><span>Texto y Markdown</span></div><div class="wb-sh k-rounded c-white" style="left:1116px;top:948px;width:252px;height:64px"><span>JSON con posición y confianza de cada palabra</span></div><div class="wb-sh k-rounded c-white" style="left:1116px;top:1028px;width:252px;height:48px"><span>PDF buscable (pikepdf)</span></div><div class="wb-sh k-rounded c-white" style="left:1116px;top:1092px;width:252px;height:48px"><span>Tablas a Excel y Word</span></div><div class="wb-sh k-rounded c-white" style="left:1116px;top:1156px;width:252px;height:48px"><span>Informe: motor usado y costo por página</span></div><div class="wb-sh k-rounded c-white" style="left:1116px;top:1220px;width:252px;height:64px"><span>Pasa a txt2media: audio, video, Office</span></div><div class="wb-sh k-rounded c-white" style="left:1480px;top:884px;width:252px;height:64px"><span>Registra qué motor ganó en cada tipo de página</span></div><div class="wb-sh k-rounded c-white" style="left:1480px;top:964px;width:252px;height:64px"><span>Guarda las correcciones del usuario</span></div><div class="wb-sh k-rounded c-pink" style="left:1480px;top:1044px;width:252px;height:64px"><span>Ajusta las reglas del enrutador (paso 5)</span></div></div></div></div>
+  <div class="wb-note">
+    <span>Azul: motor local, gratis y privado · Durazno: motor en la nube, de pago · Rosa: punto de decisión</span>
+    <span>Versión editable: <a href="https://claude.ai/artifact/2MGjCVTvrb8hD6q5Yz6Xh1" target="_blank" rel="noopener">whiteboard en claude.ai</a></span>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="pasos">
+  <div class="sec-head">
+    <span class="eyebrow">04 · Pasos</span>
+    <h2>Los 11 pasos en detalle</h2>
+  </div>
+  <div class="steps">
+    <div class="step"><h3><span class="n">1</span>Archivo origen</h3><p>Recibe PDF digital o escaneado, imágenes, fotos de móvil, o DOCX/PPTX con imágenes incrustadas. Un archivo o una carpeta completa.</p></div>
+    <div class="step"><h3><span class="n">2</span>Ingesta</h3><p>Detecta el tipo real por su contenido (no por la extensión). Calcula una huella SHA-256: si el archivo ya se procesó, devuelve el resultado guardado. Separa en páginas para trabajar en paralelo y solo convierte a imagen (300 DPI) las que lo necesitan.</p><span class="libs">pypdfium2 · Pillow</span></div>
+    <div class="step"><h3><span class="n">3</span>Diagnóstico por página</h3><p>Responde cuatro preguntas: ¿tiene texto digital legible?, ¿qué calidad tiene la imagen (DPI, inclinación, ruido)?, ¿hay tablas, fórmulas o escritura a mano?, ¿en qué idioma está? El resultado es la <b>ficha de la página</b>.</p><span class="libs">pdfplumber · langdetect · detector de layout</span></div>
+    <div class="step"><h3><span class="n">4</span>Limpieza de imagen</h3><p>Solo para escaneos y fotos. Endereza, quita ruido y sombras, ajusta contraste, binariza, amplía si está bajo 300 DPI y recorta bordes negros. El texto digital salta este paso.</p><span class="libs">OpenCV · Pillow</span></div>
+    <div class="step"><h3><span class="n">5</span>Enrutador</h3><p>El cerebro de la app. Con la ficha de la página, el modo elegido y el presupuesto disponible, decide qué motor usa primero.</p></div>
+    <div class="step"><h3><span class="n">6</span>Motores especialistas</h3><p>Ocho rutas posibles: pdfplumber, docling, RapidOCR/PaddleOCR, Tesseract, TrOCR, pix2tex, Azure Document Intelligence o IA de visión. Detalle en la sección 05.</p></div>
+    <div class="step"><h3><span class="n">7</span>Control de confianza</h3><p>Si la confianza media de la página supera el umbral (90 % como punto de partida), sigue. Si no, reintenta con el siguiente motor de la escalera: Tesseract → PaddleOCR → Azure → IA de visión. Máximo 3 intentos o hasta el tope de gasto.</p></div>
+    <div class="step"><h3><span class="n">8</span>Fusión y votación</h3><p>Une el texto reconocido con la estructura que entrega docling. En documentos marcados como críticos, dos motores trabajan en paralelo, se comparan palabra por palabra y, si no coinciden, decide un tercero.</p></div>
+    <div class="step"><h3><span class="n">9</span>Corrección</h3><p>Corrector ortográfico por idioma; arreglo de confusiones típicas del OCR (rn→m, 0→O, l→1); unión de palabras cortadas por guion; marca de palabras dudosas. Opcionalmente, una IA pule el texto.</p></div>
+    <div class="step"><h3><span class="n">10</span>Resultados</h3><p>Texto y Markdown, JSON con posición y confianza de cada palabra, PDF buscable, tablas a Excel y Word, informe de motor y costo por página, y envío directo a txt2media.</p><span class="libs">pikepdf · python-docx · openpyxl</span></div>
+    <div class="step"><h3><span class="n">11</span>Aprendizaje</h3><p>Registra qué motor ganó en cada tipo de página y guarda las correcciones del usuario. Con eso ajusta las reglas del enrutador (vuelve al paso 5).</p></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="motores">
+  <div class="sec-head">
+    <span class="eyebrow">05 · Motores</span>
+    <h2>Matriz de motores</h2>
+    <p>Qué motor atiende cada situación y a cuál se escala si el primero no alcanza.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Situación detectada</th><th>Motor principal</th><th>Si no alcanza</th><th>Dónde corre</th><th>Licencia</th></tr></thead>
+      <tbody>
+        <tr><td>PDF con texto digital</td><td><b>pdfplumber</b> + pypdfium2 (sin OCR)</td><td>—</td><td><span class="tag t-local">Local</span></td><td>MIT · Apache 2.0</td></tr>
+        <tr><td>Estructura: columnas, títulos, orden de lectura</td><td><b>docling</b></td><td>—</td><td><span class="tag t-local">Local</span></td><td>MIT</td></tr>
+        <tr><td>Texto impreso escaneado</td><td><b>RapidOCR</b> (modelos de PaddleOCR en ONNX) o <b>PaddleOCR</b></td><td>Azure Document Intelligence</td><td><span class="tag t-local">Local</span></td><td>Apache 2.0</td></tr>
+        <tr><td>Escaneo simple o PC con pocos recursos</td><td><b>Tesseract</b></td><td>PaddleOCR</td><td><span class="tag t-local">Local</span></td><td>Apache 2.0</td></tr>
+        <tr><td>Tablas</td><td>docling o PP-Structure</td><td>Azure Document Intelligence</td><td><span class="tag t-local">Local</span></td><td>MIT · Apache 2.0</td></tr>
+        <tr><td>Escritura a mano</td><td><b>TrOCR</b></td><td>Azure (lectura de manuscritos)</td><td><span class="tag t-local">Local</span></td><td>MIT</td></tr>
+        <tr><td>Fórmulas matemáticas</td><td><b>pix2tex</b></td><td>Mathpix</td><td><span class="tag t-local">Local</span></td><td>MIT</td></tr>
+        <tr><td>Facturas, recibos, formularios</td><td><b>Azure Document Intelligence</b></td><td>IA de visión</td><td><span class="tag t-cloud">Nube</span></td><td>Servicio de pago</td></tr>
+        <tr><td>Documentos históricos, árabe o hebreo</td><td><b>Kraken</b></td><td>—</td><td><span class="tag t-local">Local</span></td><td>Apache 2.0</td></tr>
+        <tr><td>Página imposible (todo mezclado, muy mala calidad)</td><td>—</td><td><b>IA de visión</b> (Claude u otro modelo)</td><td><span class="tag t-cloud">Nube</span></td><td>Servicio de pago</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="inteligencia">
+  <div class="sec-head">
+    <span class="eyebrow">06 · Inteligencia</span>
+    <h2>Cómo decide la app</h2>
+  </div>
+  <div class="modes">
+    <div class="mode"><span class="k">Modo</span><h3>Privado</h3><p>Solo motores locales. Ningún documento sale del equipo. Ideal para contratos o datos personales.</p></div>
+    <div class="mode"><span class="k">Modo</span><h3>Equilibrado</h3><p>Local primero; la nube solo para las páginas donde lo local no alcanzó la confianza mínima.</p></div>
+    <div class="mode"><span class="k">Modo</span><h3>Máxima precisión</h3><p>Usa el mejor motor para cada página sin importar el costo, con votación entre motores.</p></div>
+    <div class="mode"><span class="k">Control</span><h3>Tope de gasto</h3><p>Límite en USD por documento. Al alcanzarlo, la app se queda con el mejor resultado obtenido y lo marca.</p></div>
+  </div>
+  <div class="cols">
+    <div class="panel"><h3>Escalera de confianza</h3><p>Tesseract → PaddleOCR → Azure → IA de visión. Cada peldaño solo se usa si el anterior quedó bajo el umbral.</p></div>
+    <div class="panel"><h3>Votación</h3><p>Para documentos críticos: dos motores en paralelo, comparación palabra por palabra y desempate con un tercero.</p></div>
+    <div class="panel"><h3>Aprendizaje</h3><p>Estadística local de aciertos por tipo de página y motor. Las correcciones manuales del usuario alimentan las reglas.</p></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section id="es">
+  <div class="sec-head">
+    <span class="eyebrow">07 · Entradas y salidas</span>
+    <h2>Qué entra y qué sale</h2>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Entrada</th><th>Tratamiento</th><th>Salida</th><th>Uso típico</th></tr></thead>
+      <tbody>
+        <tr><td>PDF digital</td><td>Extracción directa, sin OCR</td><td>Texto · Markdown</td><td>Lectura, resumen, audio con txt2media</td></tr>
+        <tr><td>PDF escaneado</td><td>Limpieza + OCR por página</td><td>PDF buscable</td><td>Archivo, búsqueda de texto</td></tr>
+        <tr><td>Imagen o foto</td><td>Limpieza + OCR</td><td>JSON con posición y confianza</td><td>Integración con otros sistemas</td></tr>
+        <tr><td>Documento con tablas</td><td>docling o Azure</td><td>Excel · Word</td><td>Informes, datos financieros</td></tr>
+        <tr><td>Cualquiera</td><td>Todo el flujo</td><td>Informe de proceso</td><td>Auditoría de motor y costo por página</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="licencias">
+  <div class="sec-head">
+    <span class="eyebrow">08 · Reglas</span>
+    <h2>Licencias y reglas técnicas</h2>
+    <p>Las mismas reglas que rigen txt2media.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Licencia</th><th>¿Se puede usar?</th><th>Qué implica</th></tr></thead>
+      <tbody>
+        <tr><td><b>MIT, BSD, Apache 2.0</b></td><td><span class="tag t-ok">Sí</span></td><td>Uso libre, incluso comercial. Solo hay que conservar el aviso de copyright.</td></tr>
+        <tr><td><b>LGPL, MPL</b></td><td><span class="tag t-ok">Sí, con cuidado</span></td><td>Se usan sin abrir el código propio si la librería se enlaza sin modificarla.</td></tr>
+        <tr><td><b>GPL, AGPL</b></td><td><span class="tag t-no">No</span></td><td>Obligan a publicar todo el código bajo la misma licencia. Prohibidas por regla del proyecto.</td></tr>
+        <tr><td><b>CC-BY-NC</b></td><td><span class="tag t-warn">Evitar</span></td><td>Prohíbe el uso comercial; deja fuera cualquier distribución o venta futura.</td></tr>
+        <tr><td><b>Servicio en la nube</b></td><td><span class="tag t-ok">Sí, de pago</span></td><td>Requiere clave de API y envía el documento al proveedor.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="cols">
+    <div class="panel"><h3>Secretos</h3><p>Las claves de Azure, Mathpix o IA de visión se guardan siempre en <code>keyring</code> (Administrador de credenciales de Windows), nunca en JSON ni en registros.</p></div>
+    <div class="panel"><h3>Escritura atómica</h3><p>Todo archivo de salida se escribe primero en un temporal y luego se reemplaza con <code>os.replace</code>, para no dejar archivos a medias.</p></div>
+    <div class="panel"><h3>Ojo con OCRmyPDF</h3><p>Es MPL, pero depende de Ghostscript, que es AGPL. El PDF buscable se genera con pikepdf (MPL) o pypdfium2.</p></div>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="librerias">
+  <div class="sec-head">
+    <span class="eyebrow">09 · Catálogo</span>
+    <h2>Las 28 librerías evaluadas</h2>
+    <p>Veredicto para este proyecto, a partir del ranking de librerías de OCR y PDF.</p>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Librería</th><th>Categoría</th><th>Licencia</th><th>Veredicto</th><th>Papel en la app</th></tr></thead>
+      <tbody>
+        <tr><td><b>pdfplumber</b></td><td>Lectura PDF</td><td>MIT</td><td><span class="tag t-ok">Usar</span></td><td>Texto digital, posiciones y tablas con bordes</td></tr>
+        <tr><td><b>pypdfium2</b></td><td>Lectura PDF</td><td>Apache 2.0</td><td><span class="tag t-ok">Usar</span></td><td>Convertir páginas a imagen; PDF buscable</td></tr>
+        <tr><td>pdfminer.six</td><td>Lectura PDF</td><td>MIT</td><td><span class="tag t-ok">Indirecta</span></td><td>Viene dentro de pdfplumber</td></tr>
+        <tr><td>pypdf</td><td>Lectura PDF</td><td>BSD-3</td><td><span class="tag t-warn">Opcional</span></td><td>Unir, dividir o descifrar PDFs</td></tr>
+        <tr><td>PyMuPDF</td><td>Lectura PDF</td><td>AGPL-3.0</td><td><span class="tag t-no">Excluida</span></td><td>—</td></tr>
+        <tr><td>borb</td><td>Lectura PDF</td><td>AGPL-3.0</td><td><span class="tag t-no">Excluida</span></td><td>—</td></tr>
+        <tr><td><b>Tesseract</b></td><td>OCR local</td><td>Apache 2.0</td><td><span class="tag t-ok">Usar</span></td><td>Respaldo universal y primer peldaño</td></tr>
+        <tr><td><b>PaddleOCR</b></td><td>OCR local</td><td>Apache 2.0</td><td><span class="tag t-ok">Usar</span></td><td>OCR local de mayor precisión</td></tr>
+        <tr><td><b>RapidOCR</b></td><td>OCR local</td><td>Apache 2.0</td><td><span class="tag t-ok">Usar</span></td><td>Modelos de Paddle en ONNX, liviano para el .exe</td></tr>
+        <tr><td>EasyOCR</td><td>OCR local</td><td>Apache 2.0</td><td><span class="tag t-warn">Alternativa</span></td><td>Fotos y texto en escenas</td></tr>
+        <tr><td>docTR</td><td>OCR local</td><td>Apache 2.0</td><td><span class="tag t-warn">Alternativa</span></td><td>Pipeline completo, documentos de identidad</td></tr>
+        <tr><td><b>TrOCR</b></td><td>OCR local</td><td>MIT</td><td><span class="tag t-ok">Usar</span></td><td>Manuscritos</td></tr>
+        <tr><td>Calamari</td><td>OCR local</td><td>Apache 2.0</td><td><span class="tag t-warn">Nicho</span></td><td>Textos históricos</td></tr>
+        <tr><td><b>Kraken</b></td><td>OCR local</td><td>Apache 2.0</td><td><span class="tag t-warn">Nicho</span></td><td>Históricos, árabe y hebreo</td></tr>
+        <tr><td>Surya</td><td>OCR local</td><td>GPL / CC-BY-NC</td><td><span class="tag t-no">Excluida</span></td><td>—</td></tr>
+        <tr><td><b>Azure Document Intelligence</b></td><td>OCR nube</td><td>De pago</td><td><span class="tag t-ok">Usar</span></td><td>Formularios, facturas, manuscritos; escalado</td></tr>
+        <tr><td>Google Document AI</td><td>OCR nube</td><td>De pago</td><td><span class="tag t-warn">Alternativa</span></td><td>Si se prefiere Google Cloud</td></tr>
+        <tr><td>Amazon Textract</td><td>OCR nube</td><td>De pago</td><td><span class="tag t-warn">Alternativa</span></td><td>Si se prefiere AWS</td></tr>
+        <tr><td>ABBYY Cloud</td><td>OCR nube</td><td>De pago</td><td><span class="tag t-warn">Alternativa</span></td><td>Caro; referencia histórica</td></tr>
+        <tr><td>Mathpix</td><td>OCR nube</td><td>De pago</td><td><span class="tag t-warn">Escalado</span></td><td>Fórmulas cuando pix2tex no alcanza</td></tr>
+        <tr><td>Nanonets</td><td>OCR nube</td><td>De pago</td><td><span class="tag t-no">Descartada</span></td><td>Orientada a empresas, muy cara</td></tr>
+        <tr><td>Mindee</td><td>OCR nube</td><td>De pago</td><td><span class="tag t-warn">Alternativa</span></td><td>Capa gratuita para facturas</td></tr>
+        <tr><td><b>docling</b></td><td>Documentos complejos</td><td>MIT</td><td><span class="tag t-ok">Usar</span></td><td>Estructura, tablas y orden de lectura</td></tr>
+        <tr><td>unstructured</td><td>Documentos complejos</td><td>Apache 2.0</td><td><span class="tag t-warn">Alternativa</span></td><td>Pesada; docling cubre lo mismo</td></tr>
+        <tr><td>layoutparser</td><td>Documentos complejos</td><td>Apache 2.0</td><td><span class="tag t-no">Descartada</span></td><td>Poco mantenida</td></tr>
+        <tr><td>deepdoctection</td><td>Documentos complejos</td><td>Apache 2.0</td><td><span class="tag t-warn">Alternativa</span></td><td>Configuración compleja</td></tr>
+        <tr><td>pymupdf4llm</td><td>Documentos complejos</td><td>AGPL-3.0</td><td><span class="tag t-no">Excluida</span></td><td>—</td></tr>
+        <tr><td>marker</td><td>Documentos complejos</td><td>GPL / CC-BY-NC</td><td><span class="tag t-no">Excluida</span></td><td>—</td></tr>
+        <tr><td>nougat</td><td>Documentos complejos</td><td>MIT / pesos CC-BY-NC</td><td><span class="tag t-no">Excluida</span></td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:13px;color:var(--ink-3)">RapidOCR y pix2tex no estaban en el ranking original; se suman por su papel en la arquitectura. Versiones y licencias a verificar antes de desarrollar.</p>
+</section>
+
+<!-- 10 -->
+<section id="fases">
+  <div class="sec-head">
+    <span class="eyebrow">10 · Plan</span>
+    <h2>Fases de desarrollo</h2>
+  </div>
+  <div class="phases">
+    <div class="phase"><h3>Fase 1 · Núcleo</h3><p>Ingesta, diagnóstico de páginas, limpieza de imagen, pdfplumber, RapidOCR/PaddleOCR, Tesseract y docling. Salidas de texto, Markdown y JSON. Con esto ya supera a la mayoría de apps de OCR.</p></div>
+    <div class="phase"><h3>Fase 2 · Nube experta</h3><p>Azure Document Intelligence con clave en keyring, modos privado/equilibrado y tope de gasto. PDF buscable y salidas a Word y Excel.</p></div>
+    <div class="phase"><h3>Fase 3 · Especialistas</h3><p>TrOCR para manuscritos, pix2tex para fórmulas, IA de visión para páginas imposibles y corrección asistida por IA.</p></div>
+    <div class="phase"><h3>Fase 4 · Inteligencia</h3><p>Votación entre motores, registro de aciertos, aprendizaje del enrutador e integración completa con txt2media.</p></div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section id="riesgos">
+  <div class="sec-head">
+    <span class="eyebrow">11 · Riesgos</span>
+    <h2>Riesgos y cómo mitigarlos</h2>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Riesgo</th><th>Impacto</th><th>Mitigación</th></tr></thead>
+      <tbody>
+        <tr><td>Instalador muy pesado (PaddlePaddle, PyTorch)</td><td>Descargas lentas, ejecutable de cientos de MB</td><td>RapidOCR (ONNX) como motor por defecto; modelos pesados como descarga opcional</td></tr>
+        <tr><td>Sin GPU en las PCs de destino</td><td>TrOCR, EasyOCR y docling lentos</td><td>Detectar GPU al iniciar y ajustar la escalera; usar la nube para los casos lentos</td></tr>
+        <tr><td>Costos de nube descontrolados</td><td>Facturas inesperadas</td><td>Tope de USD por documento y modo privado por defecto</td></tr>
+        <tr><td>Privacidad de documentos</td><td>Datos sensibles fuera del equipo</td><td>Modo privado; aviso claro antes de enviar a la nube</td></tr>
+        <tr><td>Cambios de licencia en librerías</td><td>Incumplir la regla anti-GPL</td><td>Revisar licencias en cada actualización y mantener <code>LICENCIAS.md</code></td></tr>
+        <tr><td>APIs inestables (docling y otras jóvenes)</td><td>Roturas al actualizar</td><td>Fijar versiones exactas y cubrir cada motor con pruebas</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="pendientes">
+  <div class="sec-head">
+    <span class="eyebrow">12 · Pendiente</span>
+    <h2>Decisiones antes de diseñar en detalle</h2>
+  </div>
+  <div class="qs">
+    <div class="q"><h3>¿App nueva o módulo de txt2media?</h3><p>Como módulo, el OCR alimentaría directamente el audio, video y Office que txt2media ya genera.</p></div>
+    <div class="q"><h3>¿Se permite la nube?</h3><p>Define si Azure y la IA de visión entran en el diseño o si todo debe ser 100 % local.</p></div>
+    <div class="q"><h3>¿Las PCs de destino tienen GPU NVIDIA?</h3><p>Cambia qué motores locales rinden bien y cuál es el motor por defecto.</p></div>
+    <div class="q"><h3>¿Importa el tamaño del instalador?</h3><p>Decide entre PaddleOCR completo (cientos de MB) y RapidOCR (mucho más liviano).</p></div>
+  </div>
+</section>
+
+<footer>
+  <span>Motor OCR Inteligente · documento de alcance · 18-11-2026</span>
+  <span>Propuesta de diseño; ningún componente está desarrollado todavía. Precios de nube aproximados y sujetos a cambios.</span>
+</footer>
+
+</div>
+<script>
+(function () {
+  var wrap = document.getElementById('wbWrap'), fit = document.getElementById('wbFit');
+  var W = 1760 + 48, H = 1340 + 60;
+  function size() {
+    var avail = wrap.clientWidth;
+    var s = Math.max(0.55, Math.min(1, avail / W));
+    fit.style.transform = 'scale(' + s + ')';
+    fit.style.width = W + 'px';
+    fit.style.height = H + 'px';
+    wrap.style.height = Math.ceil(H * s) + 'px';
+  }
+  size();
+  window.addEventListener('resize', size);
+  window.addEventListener('beforeprint', function () { fit.style.transform = 'scale(' + Math.min(1, 680 / W) + ')'; wrap.style.height = Math.ceil(H * 680 / W) + 'px'; });
+  window.addEventListener('afterprint', size);
+})();
+</script>
+</body>
+</html>
