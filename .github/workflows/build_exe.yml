@@ -60,6 +60,7 @@ jobs:
           Copy-Item "main_exe.py"    $tmp
           Copy-Item "src"            $tmp -Recurse
           if (Test-Path "assets") { Copy-Item "assets" $tmp -Recurse }
+          if (Test-Path "recursos") { Copy-Item "recursos" $tmp -Recurse }
           Compress-Archive -Path "dist\zip_tmp\*" -DestinationPath $zip -Force
           Write-Host "ZIP creado: $zip"
         shell: pwsh
