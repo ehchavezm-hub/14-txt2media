@@ -55,6 +55,7 @@ jobs:
           $tmp = "dist\zip_tmp\txt2media"
           New-Item -ItemType Directory -Force -Path $tmp | Out-Null
           Copy-Item "ejecutar.bat"   $tmp
+          Copy-Item "txt2media.cmd"  $tmp
           Copy-Item "lanzar.pyw"     $tmp
           Copy-Item "pyproject.toml" $tmp
           Copy-Item "main_exe.py"    $tmp

@@ -37,10 +37,7 @@ git --version >nul 2>&1 || (
     echo [AVISO] Git no esta instalado: se usa la version local sin actualizar.
     goto :Dependencias
 )
-git -C "%RAIZ%" rev-parse --is-inside-work-tree >nul 2>&1 || (
-    echo [AVISO] Esta carpeta no es un clon de git: se usa la version local sin actualizar.
-    goto :Dependencias
-)
+if not exist "%RAIZ%\.git" goto :Conectar
 set "ANTES="
 for /f %%h in ('git -C "%RAIZ%" rev-parse HEAD') do set "ANTES=%%h"
 echo [git] Actualizando desde GitHub...
@@ -51,6 +48,24 @@ if errorlevel 1 (
     goto :Dependencias
 )
 git -C "%RAIZ%" diff --quiet %ANTES% HEAD -- pyproject.toml || set "REINSTALAR=1"
+goto :Dependencias
+
+:Conectar
+REM Carpeta descomprimida de un ZIP: se conecta con GitHub una sola vez.
+echo [git] Esta carpeta no esta conectada a GitHub. Conectando...
+git -C "%RAIZ%" init -q
+git -C "%RAIZ%" remote add origin https://github.com/ehchavezm-hub/14-txt2media.git
+git -C "%RAIZ%" fetch -q origin main
+if errorlevel 1 (
+    echo [AVISO] No se pudo descargar desde GitHub. Se usa la version local.
+    rmdir /s /q "%RAIZ%\.git"
+    goto :Dependencias
+)
+git -C "%RAIZ%" symbolic-ref HEAD refs/heads/main
+git -C "%RAIZ%" reset -q --hard origin/main
+git -C "%RAIZ%" branch -q --set-upstream-to=origin/main main
+echo [git] Listo: esta carpeta ya se actualiza desde GitHub.
+set "REINSTALAR=1"
 
 :Dependencias
 REM ---- 3. Dependencias (solo si faltan o cambio pyproject.toml) ---------------

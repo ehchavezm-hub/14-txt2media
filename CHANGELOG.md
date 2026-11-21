@@ -3,7 +3,7 @@
 ## [Sin publicar]
 
 ### Terminal
-- Nuevo `txt2media.cmd`: hace `git pull`, instala dependencias si cambiaron y abre la ventana o ejecuta la CLI
+- Nuevo `txt2media.cmd`: hace `git pull`, instala dependencias si cambiaron y abre la ventana o ejecuta la CLI. En una carpeta descomprimida del ZIP la conecta con GitHub la primera vez; también va dentro del ZIP portable
 - Corregido `ejecutar.bat`: la ventana se cerraba sin abrir la app (convertía `py -3.13` en `pythonw -3.13`, un comando inválido); ahora muestra el error si algo falla
 - `.gitattributes`: los `.bat` y `.cmd` se guardan con fin de línea de Windows (CRLF)
 
