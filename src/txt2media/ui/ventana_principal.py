@@ -1,6 +1,6 @@
 """Ventana principal txt2media — interfaz minimalista PySide6.
 
-Dirección visual: panel de instrumento. Fondo grafito, líneas finas, un único
+Dirección visual: panel de instrumento en tema claro. Fondo blanco, líneas finas, un único
 color de señal (azul hielo) reservado para foco, selección y progreso. Texto en
 Figtree; datos (formatos, tamaños, estado) en monoespaciada.
 """
@@ -26,17 +26,17 @@ _EXTENSIONES = (".epub", ".pdf", ".docx", ".md")
 
 # ── Tokens de diseño ───────────────────────────────────────────────────────
 _C = {
-    "fondo":      "#0C0E11",
-    "panel":      "#101318",
-    "elevado":    "#161A20",
-    "linea":      "#20262E",
-    "linea_2":    "#2C333D",
-    "texto":      "#E7EAEE",
-    "texto_2":    "#9AA3AE",
-    "texto_3":    "#5E6772",
-    "senal":      "#7CC4FF",
-    "ok":         "#7DD3A8",
-    "error":      "#F07178",
+    "fondo":      "#FFFFFF",
+    "panel":      "#F5F6F8",
+    "elevado":    "#EEF3FB",
+    "linea":      "#E3E6EB",
+    "linea_2":    "#CBD1D9",
+    "texto":      "#12171D",
+    "texto_2":    "#4E5865",
+    "texto_3":    "#8A939E",
+    "senal":      "#1F64D6",
+    "ok":         "#1E9A68",
+    "error":      "#D14343",
 }
 _SANS = "'Figtree', 'Segoe UI', 'Inter', sans-serif"
 _MONO = "'Cascadia Mono', 'Consolas', 'JetBrains Mono', 'DejaVu Sans Mono', monospace"
@@ -86,6 +86,7 @@ QLabel#zona_sub {{ color: {_C['texto_3']}; font-family: {_MONO}; font-size: 11px
 QListWidget#lista {{ background: transparent; border: none; }}
 QListWidget#lista::item {{ border-bottom: 1px solid {_C['linea']}; }}
 QListWidget#lista::item:selected {{ background: {_C['elevado']}; }}
+QListWidget#lista {{ background: {_C['fondo']}; border: 1px solid {_C['linea']}; border-radius: 8px; }}
 QListWidget#lista::item:hover {{ background: {_C['elevado']}; }}
 QLabel#fila_tipo {{ color: {_C['texto_2']}; font-family: {_MONO}; font-size: 10px; letter-spacing: 1px;
     border: 1px solid {_C['linea_2']}; border-radius: 3px; padding: 1px 0; }}
@@ -99,10 +100,10 @@ QPushButton#fila_quitar:hover {{ color: {_C['texto']}; background: {_C['linea_2'
 QPushButton {{ font-size: 13px; }}
 QPushButton#primario {{ background: {_C['texto']}; color: {_C['fondo']}; border: none; border-radius: 6px;
     padding: 0 22px; font-weight: 600; min-height: 38px; }}
-QPushButton#primario:hover {{ background: #FFFFFF; }}
-QPushButton#primario:pressed {{ background: #C9CED5; }}
+QPushButton#primario:hover {{ background: #000000; }}
+QPushButton#primario:pressed {{ background: #2B323B; }}
 QPushButton#primario:focus {{ border: 2px solid {_C['senal']}; }}
-QPushButton#primario:disabled {{ background: {_C['elevado']}; color: {_C['texto_3']}; }}
+QPushButton#primario:disabled {{ background: {_C['linea']}; color: {_C['texto_3']}; }}
 QPushButton#secundario {{ background: transparent; color: {_C['texto_2']}; border: 1px solid {_C['linea_2']};
     border-radius: 6px; padding: 0 14px; min-height: 32px; }}
 QPushButton#secundario:hover {{ color: {_C['texto']}; border-color: {_C['texto_3']}; }}
@@ -126,7 +127,7 @@ QLabel#mosaico_txt {{ color: {_C['texto_3']}; font-size: 11px; }}
 QLabel#mosaico_txt[activo="true"] {{ color: {_C['texto_2']}; }}
 
 /* Campo de carpeta */
-QLineEdit {{ background: {_C['panel']}; border: 1px solid {_C['linea']}; border-radius: 6px; color: {_C['texto']};
+QLineEdit {{ background: {_C['fondo']}; border: 1px solid {_C['linea']}; border-radius: 6px; color: {_C['texto']};
     padding: 0 12px; min-height: 34px; font-family: {_MONO}; font-size: 12px;
     selection-background-color: {_C['linea_2']}; }}
 QLineEdit:hover {{ border-color: {_C['linea_2']}; }}
