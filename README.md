@@ -13,6 +13,33 @@ py -3.13 -m pip install -e .
 py -3.13 -m pip install -e .[ocr]
 ```
 
+## Uso desde la terminal (recomendado)
+
+`txt2media.cmd` trae la última versión desde GitHub (`git pull`) antes de cada
+uso, instala las dependencias si hace falta y luego ejecuta lo que pidas.
+Funciona en CMD y en PowerShell.
+
+Primera vez (requiere Git y Python 3.13):
+
+```bash
+git clone https://github.com/ehchavezm-hub/14-txt2media D:\PST\txt2media
+cd D:\PST\txt2media
+```
+
+Después, siempre desde esa carpeta:
+
+| Comando | Qué hace |
+|---|---|
+| `.\txt2media` | Actualiza y abre la ventana |
+| `.\txt2media convertir "libro.pdf" --formato audio` | Actualiza y convierte |
+| `.\txt2media convertir "libro.pdf" --formato audio --modo capitulos --salida D:\Audiolibros` | Audio por capítulos |
+| `.\txt2media info` | Estado del sistema (ffmpeg, voces, claves) |
+| `.\txt2media actualizar` | Solo `git pull` y dependencias |
+| `.\txt2media ayuda` | Todos los comandos y opciones |
+
+Para no actualizar en una ejecución: `set TXT2MEDIA_SIN_PULL=1` (CMD) o
+`$env:TXT2MEDIA_SIN_PULL=1` (PowerShell).
+
 ## Uso rápido (CLI)
 
 | Formato       | Comando                                                                                      |

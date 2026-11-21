@@ -40,18 +40,15 @@ if not errorlevel 1 (
 REM ── Solo si no esta instalado: instalar dependencias ─────────────────────────
 echo  Instalando dependencias (primera vez, puede tardar)...
 echo.
-!PYCMD! -m pip install --no-build-isolation --no-deps -e "%~dp0." -q --no-warn-script-location
-!PYCMD! -m pip install --no-build-isolation -r "%~dp0requirements_simple.txt" -q 2>nul
+!PYCMD! -m pip install --no-build-isolation -e "%~dp0." -q --no-warn-script-location
+if errorlevel 1 !PYCMD! -m pip install -e "%~dp0." -q --no-warn-script-location
 if errorlevel 1 (
-    !PYCMD! -m pip install --no-build-isolation -e "%~dp0." -q --no-warn-script-location
-    if errorlevel 1 (
-        echo.
-        echo  [ERROR] No se pudieron instalar las dependencias.
-        echo   Si el app ya funcionaba antes, intenta con el EXE:
-        echo   https://github.com/ehchavezm-hub/14-txt2media/releases
-        echo.
-        pause & exit /b 1
-    )
+    echo.
+    echo  [ERROR] No se pudieron instalar las dependencias.
+    echo   Si el app ya funcionaba antes, intenta con el EXE:
+    echo   https://github.com/ehchavezm-hub/14-txt2media/releases
+    echo.
+    pause & exit /b 1
 )
 
 echo  Dependencias OK.
@@ -64,12 +61,13 @@ echo  [2/2] Iniciando txt2media...
 
 echo.
 
-REM Intentar sin ventana de consola (pythonw)
-set PYCMD_W=!PYCMD:py=pythonw!
-start "" !PYCMD_W! "%~dp0lanzar.pyw" >nul 2>&1
+REM Se ejecuta con consola: si algo falla, el error queda a la vista.
+!PYCMD! "%~dp0lanzar.pyw"
 if errorlevel 1 (
-    REM Fallback con consola visible
-    start "" !PYCMD! "%~dp0lanzar.pyw"
+    echo.
+    echo  [ERROR] txt2media se cerro con un error. El detalle esta arriba.
+    echo.
+    pause & exit /b 1
 )
 
 exit /b 0

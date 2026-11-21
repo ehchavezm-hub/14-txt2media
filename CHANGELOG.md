@@ -2,6 +2,11 @@
 
 ## [Sin publicar]
 
+### Terminal
+- Nuevo `txt2media.cmd`: hace `git pull`, instala dependencias si cambiaron y abre la ventana o ejecuta la CLI
+- Corregido `ejecutar.bat`: la ventana se cerraba sin abrir la app (convertía `py -3.13` en `pythonw -3.13`, un comando inválido); ahora muestra el error si algo falla
+- `.gitattributes`: los `.bat` y `.cmd` se guardan con fin de línea de Windows (CRLF)
+
 ### Interfaz
 - Rediseño visual de la ventana: estilo minimalista y profesional en tema claro (blanco, un único color de señal, Figtree + monoespaciada para datos)
 - Formatos, voz y modo de audio como botones visibles en lugar de listas desplegables
