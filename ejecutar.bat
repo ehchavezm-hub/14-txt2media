@@ -33,18 +33,17 @@ REM ── 2. Instalar / actualizar dependencias ──────────�
 echo  [1/2] Instalando dependencias (puede tardar la primera vez)...
 echo.
 
-!PYCMD! -m pip install --upgrade pip -q
+!PYCMD! -m pip install --no-build-isolation -e "%~dp0." -q --no-warn-script-location
 if errorlevel 1 (
-    echo  [AVISO] No se pudo actualizar pip, continuando...
-)
-
-!PYCMD! -m pip install -e "%~dp0." -q
-if errorlevel 1 (
-    echo.
-    echo  [ERROR] Fallo la instalacion de dependencias.
-    echo   Verifica tu conexion a internet e intenta de nuevo.
-    echo.
-    pause & exit /b 1
+    echo  [AVISO] Primer intento fallido, reintentando sin aislamiento...
+    !PYCMD! -m pip install --no-build-isolation -e "%~dp0." --no-warn-script-location
+    if errorlevel 1 (
+        echo.
+        echo  [ERROR] Fallo la instalacion de dependencias.
+        echo   Verifica tu conexion a internet e intenta de nuevo.
+        echo.
+        pause & exit /b 1
+    )
 )
 
 echo  Dependencias OK.
