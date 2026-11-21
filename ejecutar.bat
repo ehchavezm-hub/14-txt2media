@@ -29,18 +29,26 @@ if "!PYCMD!"=="" (
 for /f "tokens=*" %%v in ('!PYCMD! --version 2^>^&1') do echo  Python encontrado: %%v
 echo.
 
-REM ── 2. Instalar / actualizar dependencias ────────────────────────────────────
-echo  [1/2] Instalando dependencias (puede tardar la primera vez)...
-echo.
+REM ── 2. Verificar si ya esta instalado ────────────────────────────────────────
+echo  [1/2] Verificando instalacion...
+!PYCMD! -c "import txt2media.ui.ventana_principal" >nul 2>&1
+if not errorlevel 1 (
+    echo  Ya instalado. Saltando pip.
+    goto :Lanzar
+)
 
-!PYCMD! -m pip install --no-build-isolation -e "%~dp0." -q --no-warn-script-location
+REM ── Solo si no esta instalado: instalar dependencias ─────────────────────────
+echo  Instalando dependencias (primera vez, puede tardar)...
+echo.
+!PYCMD! -m pip install --no-build-isolation --no-deps -e "%~dp0." -q --no-warn-script-location
+!PYCMD! -m pip install --no-build-isolation -r "%~dp0requirements_simple.txt" -q 2>nul
 if errorlevel 1 (
-    echo  [AVISO] Primer intento fallido, reintentando sin aislamiento...
-    !PYCMD! -m pip install --no-build-isolation -e "%~dp0." --no-warn-script-location
+    !PYCMD! -m pip install --no-build-isolation -e "%~dp0." -q --no-warn-script-location
     if errorlevel 1 (
         echo.
-        echo  [ERROR] Fallo la instalacion de dependencias.
-        echo   Verifica tu conexion a internet e intenta de nuevo.
+        echo  [ERROR] No se pudieron instalar las dependencias.
+        echo   Si el app ya funcionaba antes, intenta con el EXE:
+        echo   https://github.com/ehchavezm-hub/14-txt2media/releases
         echo.
         pause & exit /b 1
     )
@@ -49,8 +57,11 @@ if errorlevel 1 (
 echo  Dependencias OK.
 echo.
 
+:Lanzar
+
 REM ── 3. Lanzar app ────────────────────────────────────────────────────────────
 echo  [2/2] Iniciando txt2media...
+
 echo.
 
 REM Intentar sin ventana de consola (pythonw)
