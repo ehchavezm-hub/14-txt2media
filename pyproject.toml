@@ -19,7 +19,6 @@ dependencies = [
     "openpyxl>=3.1.5",
     "markdown-it-py>=3.0.0",
     "Pillow>=11.0.0",
-    "moviepy>=2.1.1",
     "httpx>=0.27.0",
     "edge-tts>=6.1.12",
     "pyttsx3==2.90",
@@ -32,6 +31,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# OCR para PDFs escaneados: requiere además el programa Tesseract instalado en Windows
+ocr = [
+    "pytesseract>=0.3.10",
+]
 dev = [
     "pytest>=8.3.3",
     "pytest-cov>=5.0.0",

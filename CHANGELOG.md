@@ -1,5 +1,14 @@
 # Changelog — txt2media
 
+## [Sin publicar]
+
+### Cambios
+- Eliminada la dependencia `moviepy`: no se usaba (el video se genera con ffmpeg)
+- `pytesseract` declarado como dependencia opcional: `pip install -e .[ocr]`
+- `LICENCIAS.md`: añadidas dependencias opcionales y programas externos (ffmpeg, Tesseract)
+- README: instalación unificada con Python 3.13
+
+
 ## [1.0.1] — 2026-11-15
 
 ### Nuevas características

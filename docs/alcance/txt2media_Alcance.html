@@ -463,10 +463,10 @@ footer { border-top: 1px solid var(--line); padding-top: 20px; font-size: 13px; 
       <thead><tr><th>Tema</th><th>Situación</th><th>Acción sugerida</th></tr></thead>
       <tbody>
         <tr><td>OCR de PDFs escaneados</td><td><span class="tag t-warn">Básico</span> Usa pytesseract solo si el usuario lo instaló aparte.</td><td>Evaluar un OCR más preciso en una versión futura.</td></tr>
-        <tr><td>pytesseract en <code>LICENCIAS.md</code></td><td><span class="tag t-warn">Falta</span> Se usa como opcional pero no está declarado.</td><td>Añadirlo como dependencia opcional (Apache 2.0).</td></tr>
-        <tr><td>moviepy</td><td><span class="tag t-warn">Sin uso</span> Declarado en <code>pyproject.toml</code>; el video se hace con ffmpeg.</td><td>Quitarlo o justificarlo.</td></tr>
+        <tr><td>pytesseract en <code>LICENCIAS.md</code></td><td><span class="tag t-ok">Resuelto</span> Declarado como opcional: <code>pip install -e .[ocr]</code>.</td><td>—</td></tr>
+        <tr><td>moviepy</td><td><span class="tag t-ok">Resuelto</span> Eliminado de <code>pyproject.toml</code>; el video se hace con ffmpeg.</td><td>—</td></tr>
         <tr><td>Resumen local</td><td><span class="tag t-warn">Sin conectar</span> Existe un motor de resumen extractivo sin red, pero ninguna interfaz lo usa.</td><td>Decidir si se ofrece como formato o se elimina.</td></tr>
-        <tr><td>Instrucción de instalación</td><td><span class="tag t-warn">Inconsistente</span> El README instala con Python 3.14 y ejecuta con 3.13.</td><td>Unificar en 3.13.</td></tr>
+        <tr><td>Instrucción de instalación</td><td><span class="tag t-ok">Resuelto</span> El README usa Python 3.13 en todos los pasos.</td><td>—</td></tr>
         <tr><td>ffmpeg</td><td><span class="tag t-ok">Documentado</span> Requisito externo para video, no se redistribuye.</td><td>—</td></tr>
       </tbody>
     </table>
