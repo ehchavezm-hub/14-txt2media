@@ -48,20 +48,43 @@ jobs:
           path: dist/txt2media.exe
           retention-days: 90
 
+      - name: Crear ZIP para Python
+        run: |
+          $zip = "dist\txt2media_python.zip"
+          $tmp = "dist\zip_tmp\txt2media"
+          New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+          Copy-Item "ejecutar.bat"   $tmp
+          Copy-Item "lanzar.pyw"     $tmp
+          Copy-Item "pyproject.toml" $tmp
+          Copy-Item "main_exe.py"    $tmp
+          Copy-Item "src"            $tmp -Recurse
+          if (Test-Path "assets") { Copy-Item "assets" $tmp -Recurse }
+          Compress-Archive -Path "dist\zip_tmp\*" -DestinationPath $zip -Force
+          Write-Host "ZIP creado: $zip"
+        shell: pwsh
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.1-b${{ github.run_number }}
           name: "txt2media v1.0.1"
           body: |
-            ## Descarga y abre — sin instalar nada
+            ## Dos formas de ejecutar
 
+            ### Opción 1 — Sin instalar nada (recomendado)
             1. Descarga `txt2media.exe`
-            2. Doble clic
-            3. La aplicación abre directamente
+            2. Doble clic → la app abre directamente
 
-            No requiere Python, no requiere instalación, no requiere permisos de administrador.
-            Compatible con Windows 10/11 (64-bit).
-          files: dist/txt2media.exe
+            > No requiere Python ni permisos de administrador. Compatible con Windows 10/11 (64-bit).
+
+            ### Opción 2 — Con Python instalado
+            1. Descarga `txt2media_python.zip`
+            2. Descomprime en cualquier carpeta
+            3. Doble clic en `ejecutar.bat`
+
+            > Instala las dependencias automáticamente en la primera ejecución.
+          files: |
+            dist/txt2media.exe
+            dist/txt2media_python.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

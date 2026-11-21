@@ -19,6 +19,9 @@ datos_dev/
 *.spec.bak
 dist/
 
+# Archivos temporales de build
+*.zip
+
 # IDE
 .vscode/
 .idea/
