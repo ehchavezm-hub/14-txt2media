@@ -40,80 +40,74 @@ def app():
     return instance
 
 
+@pytest.fixture
+def ventana(app):
+    from PySide6.QtCore import QSettings
+    QSettings("txt2media", "txt2media").clear()
+    from txt2media.ui.ventana_principal import VentanaPrincipal
+    v = VentanaPrincipal()
+    yield v
+    v.close()
+
+
 @skip_sin_qt
 class TestVentanaPrincipal:
-    def test_ventana_crea_sin_error(self, app):
-        from txt2media.ui.ventana_principal import VentanaPrincipal
-        ventana = VentanaPrincipal()
+    def test_ventana_crea_sin_error(self, ventana):
         assert ventana is not None
-        ventana.close()
 
-    def test_ventana_tiene_titulo(self, app):
-        from txt2media.ui.ventana_principal import VentanaPrincipal
-        ventana = VentanaPrincipal()
-        assert "ConvDoc" in ventana.windowTitle()
-        ventana.close()
+    def test_ventana_tiene_titulo(self, ventana):
+        assert "txt2media" in ventana.windowTitle()
 
-    def test_ventana_tiene_tres_paneles(self, app):
-        from txt2media.ui.ventana_principal import VentanaPrincipal
-        ventana = VentanaPrincipal()
-        assert ventana.panel_origen is not None
-        assert ventana.panel_vista_previa is not None
-        assert ventana.panel_exportar is not None
-        ventana.close()
+    def test_controles_principales_existen(self, ventana):
+        for nombre in ("btn_agregar", "btn_quitar", "btn_convertir", "btn_cancelar",
+                       "btn_abrir_carpeta", "barra_progreso", "lista_archivos", "edit_salida"):
+            assert getattr(ventana, nombre) is not None, nombre
 
-    def test_boton_abrir_existe(self, app):
-        from txt2media.ui.ventana_principal import VentanaPrincipal
-        ventana = VentanaPrincipal()
-        assert ventana.btn_abrir is not None
-        ventana.close()
-
-    def test_boton_exportar_existe(self, app):
-        from txt2media.ui.ventana_principal import VentanaPrincipal
-        ventana = VentanaPrincipal()
-        assert ventana.btn_exportar is not None
-        ventana.close()
-
-    def test_boton_cancelar_existe(self, app):
-        from txt2media.ui.ventana_principal import VentanaPrincipal
-        ventana = VentanaPrincipal()
-        assert ventana.btn_cancelar is not None
-        ventana.close()
-
-    def test_barra_progreso_existe(self, app):
-        from txt2media.ui.ventana_principal import VentanaPrincipal
-        ventana = VentanaPrincipal()
-        assert ventana.barra_progreso is not None
-        ventana.close()
-
-    def test_exportar_deshabilitado_sin_documento(self, app):
-        from txt2media.ui.ventana_principal import VentanaPrincipal
-        ventana = VentanaPrincipal()
-        assert not ventana.btn_exportar.isEnabled()
-        ventana.close()
-
-    def test_cancelar_deshabilitado_sin_proceso(self, app):
-        from txt2media.ui.ventana_principal import VentanaPrincipal
-        ventana = VentanaPrincipal()
+    def test_cancelar_deshabilitado_sin_proceso(self, ventana):
         assert not ventana.btn_cancelar.isEnabled()
-        ventana.close()
+
+    def test_siete_formatos_disponibles(self, ventana):
+        datos = {ventana.combo_formato._datos[i] for i in range(ventana.combo_formato.count())}
+        assert datos == {"pptx", "docx", "xlsx", "md", "html", "audio", "video"}
+
+    def test_voz_predeterminada_camila(self, ventana):
+        assert ventana.combo_voz.currentData() == "es-PE-CamilaNeural"
+
+    def test_opciones_de_voz_solo_para_audio_y_video(self, ventana):
+        sel = ventana.combo_formato
+        sel.setCurrentIndex(sel.findData("pptx"))
+        assert ventana.bloque_voz.isHidden()
+        sel.setCurrentIndex(sel.findData("video"))
+        assert not ventana.bloque_voz.isHidden()
+        assert ventana.combo_modo.isHidden()
+        sel.setCurrentIndex(sel.findData("audio"))
+        assert not ventana.combo_modo.isHidden()
+
+    def test_agregar_y_quitar_archivo(self, ventana, tmp_path):
+        doc = tmp_path / "libro.pdf"
+        doc.write_bytes(b"x" * 2048)
+        ventana._agregar_path(doc)
+        ventana._agregar_path(doc)  # duplicado ignorado
+        assert ventana._archivos == [doc]
+        assert ventana.lista_archivos.count() == 1
+        assert ventana.pila_entrada.currentIndex() == 1
+        ventana._quitar_ruta(doc)
+        assert ventana._archivos == []
+        assert ventana.lista_archivos.count() == 0
+        assert ventana.pila_entrada.currentIndex() == 0
 
 
 @skip_sin_qt
 class TestWorkerConversion:
-    def test_worker_crea_sin_error(self, app):
+    def test_worker_crea_sin_error(self, app, tmp_path):
         from txt2media.ui.worker_conversion import WorkerConversion
-        from txt2media.core.orquestador import Orquestador
-        orq = Orquestador()
-        worker = WorkerConversion(orquestador=orq, archivos=[], formato="pptx", ruta_salida=None)
+        worker = WorkerConversion(archivos=[], formato="pptx", carpeta_salida=tmp_path)
         assert worker is not None
 
-    def test_worker_es_qthread(self, app):
+    def test_worker_es_qthread(self, app, tmp_path):
         from PySide6.QtCore import QThread
         from txt2media.ui.worker_conversion import WorkerConversion
-        from txt2media.core.orquestador import Orquestador
-        orq = Orquestador()
-        worker = WorkerConversion(orquestador=orq, archivos=[], formato="pptx", ruta_salida=None)
+        worker = WorkerConversion(archivos=[], formato="pptx", carpeta_salida=tmp_path)
         assert isinstance(worker, QThread)
 
 

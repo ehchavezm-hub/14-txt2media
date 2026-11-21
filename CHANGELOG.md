@@ -2,6 +2,13 @@
 
 ## [Sin publicar]
 
+### Interfaz
+- Rediseño visual de la ventana: estilo minimalista y profesional (grafito, un único color de señal, Figtree + monoespaciada para datos)
+- Formatos, voz y modo de audio como botones visibles en lugar de listas desplegables
+- Lista de archivos con tipo, tamaño y botón para quitar cada uno; zona de arrastre cuando está vacía
+- Barra de acción inferior con progreso, estado y botón "Convertir a <formato>"
+- El .exe ahora incluye las fuentes de `recursos/`
+
 ### Cambios
 - Eliminada la dependencia `moviepy`: no se usaba (el video se genera con ffmpeg)
 - `pytesseract` declarado como dependencia opcional: `pip install -e .[ocr]`

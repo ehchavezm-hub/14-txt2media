@@ -37,6 +37,7 @@ jobs:
             --hidden-import pyttsx3 `
             --hidden-import keyring.backends.Windows `
             --hidden-import langdetect `
+            --add-data "recursos;." `
             $icon `
             main_exe.py
         shell: pwsh
