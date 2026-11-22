@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,7 @@ name = "txt2media"
 version = "1.0.1"
 description = "Conversor de documentos EPUB/PDF/DOCX/MD a PPTX/Audio/Video/DOCX/XLSX"
 requires-python = ">=3.12"
-license = {text = "Propietario - Uso interno"}
+license = "LicenseRef-Propietario-Uso-Interno"
 authors = [{name = "COSAPI", email = "evolucion1@cosapi.com.pe"}]
 
 dependencies = [
