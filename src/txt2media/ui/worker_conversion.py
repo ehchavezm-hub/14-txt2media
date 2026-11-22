@@ -21,7 +21,7 @@ class WorkerConversion(QThread):
         self,
         archivos: list[Path],
         formato: str,
-        carpeta_salida: Path,
+        carpeta_salida: Path | None = None,
         voz: str = "es-PE-CamilaNeural",
         modo: str = "completo",
     ) -> None:
@@ -35,6 +35,12 @@ class WorkerConversion(QThread):
 
     def cancelar(self) -> None:
         self._cancelar.set()
+
+    def _carpeta(self, archivo: Path) -> Path:
+        """Carpeta de salida para un archivo: la elegida o, si no hay, la del original."""
+        carpeta = self._carpeta_salida if self._carpeta_salida else archivo.parent
+        carpeta.mkdir(parents=True, exist_ok=True)
+        return carpeta
 
     def run(self) -> None:
         try:
@@ -68,8 +74,7 @@ class WorkerConversion(QThread):
             self.progreso.emit(i - 1, total, f"Procesando: {archivo.name}…")
             try:
                 ext = _EXT.get(self._formato, f".{self._formato}")
-                salida = self._carpeta_salida / archivo.with_suffix(ext).name
-                self._carpeta_salida.mkdir(parents=True, exist_ok=True)
+                salida = self._carpeta(archivo) / archivo.with_suffix(ext).name
                 doc = self._leer(archivo)
                 self._generar(doc, salida)
                 resultados.append(salida)
@@ -84,7 +89,6 @@ class WorkerConversion(QThread):
 
         total = len(self._archivos)
         resultados: list[str] = []
-        self._carpeta_salida.mkdir(parents=True, exist_ok=True)
         gen = GeneradorAudio(voz=self._voz)
         for i, archivo in enumerate(self._archivos, start=1):
             if self._cancelar.is_set():
@@ -92,7 +96,7 @@ class WorkerConversion(QThread):
             # emitir ANTES: muestra "procesando…" con barra indeterminada
             self.progreso.emit(i - 1, total, f"Sintetizando voz: {archivo.name}…")
             doc = self._leer(archivo)
-            salida = self._carpeta_salida / (archivo.stem + ".mp3")
+            salida = self._carpeta(archivo) / (archivo.stem + ".mp3")
             gen.generar(doc, salida)
             # emitir DESPUÉS: archivo completado
             self.progreso.emit(i, total, archivo.name)
@@ -109,7 +113,7 @@ class WorkerConversion(QThread):
                 break
             self.progreso.emit(i - 1, total, f"Sintetizando capítulos: {archivo.name}…")
             doc = self._leer(archivo)
-            sub = self._carpeta_salida / archivo.stem
+            sub = self._carpeta(archivo) / archivo.stem
             gen = GeneradorAudio(voz=self._voz)
             archivos_gen = gen.generar_capitulos(doc, sub)
             self.progreso.emit(i, total, archivo.name)
@@ -121,14 +125,13 @@ class WorkerConversion(QThread):
 
         total = len(self._archivos)
         resultados: list[str] = []
-        self._carpeta_salida.mkdir(parents=True, exist_ok=True)
         gen = GeneradorVideo(voz=self._voz)
         for i, archivo in enumerate(self._archivos, start=1):
             if self._cancelar.is_set():
                 break
             self.progreso.emit(i - 1, total, f"Generando video: {archivo.name}…")
             doc = self._leer(archivo)
-            salida = self._carpeta_salida / (archivo.stem + ".mp4")
+            salida = self._carpeta(archivo) / (archivo.stem + ".mp4")
             gen.generar(doc, salida)
             self.progreso.emit(i, total, archivo.name)
             resultados.append(str(salida))

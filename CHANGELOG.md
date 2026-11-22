@@ -4,6 +4,9 @@
 
 - Tres temas claros (azul, verde azulado, índigo) que se eligen arriba a la derecha; la ventana recuerda el elegido
 
+- Los resultados se guardan en la misma carpeta que cada documento original (antes: carpeta desde donde se abría la app). "Destino" vacío = junto al original; con **Examinar** se elige otra carpeta. También en la CLI cuando no se indica `--salida`
+- "Abrir carpeta" abre la carpeta donde quedó realmente el resultado
+
 ### Terminal
 - Nuevo `txt2media.cmd`: hace `git pull`, instala dependencias si cambiaron y abre la ventana o ejecuta la CLI. En una carpeta descomprimida del ZIP la conecta con GitHub la primera vez; también va dentro del ZIP portable
 - Corregido `ejecutar.bat`: la ventana se cerraba sin abrir la app (convertía `py -3.13` en `pythonw -3.13`, un comando inválido); ahora muestra el error si algo falla

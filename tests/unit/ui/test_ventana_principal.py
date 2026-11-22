@@ -108,6 +108,23 @@ class TestVentanaPrincipal:
             assert QSettings("txt2media", "txt2media").value("tema") == clave
 
 
+    def test_destino_vacio_significa_junto_al_original(self, ventana, tmp_path):
+        assert ventana.edit_salida.text() == ""
+        assert ventana._carpeta_elegida() is None
+        ventana.edit_salida.setText(".")
+        assert ventana._carpeta_elegida() is None
+        ventana.edit_salida.setText(str(tmp_path))
+        assert ventana._carpeta_elegida() == tmp_path
+
+    def test_worker_sin_destino_guarda_junto_al_original(self, app, tmp_path):
+        from txt2media.ui.worker_conversion import WorkerConversion
+        doc = tmp_path / "A" / "libro.md"
+        doc.parent.mkdir()
+        doc.write_text("# Hola\n\nTexto.\n", encoding="utf-8")
+        worker = WorkerConversion(archivos=[doc], formato="html", carpeta_salida=None)
+        assert worker._ejecutar() == [str(doc.parent / "libro.html")]
+
+
 @skip_sin_qt
 class TestWorkerConversion:
     def test_worker_crea_sin_error(self, app, tmp_path):

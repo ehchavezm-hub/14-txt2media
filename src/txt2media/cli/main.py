@@ -60,8 +60,8 @@ def _construir_parser() -> argparse.ArgumentParser:
     )
     p_conv.add_argument(
         "--salida",
-        default=".",
-        help="Carpeta de salida (default: directorio actual)",
+        default=None,
+        help="Carpeta de salida (default: la misma carpeta de cada documento)",
     )
     p_conv.add_argument(
         "--voz",
@@ -104,7 +104,7 @@ def _cmd_convertir(args: argparse.Namespace) -> None:
     from txt2media.core.orquestador import Orquestador
 
     voz = _resolver_voz(args.voz)
-    carpeta_salida = Path(args.salida)
+    carpeta_salida = Path(args.salida) if args.salida else None
     archivos = [Path(a) for a in args.archivo]
 
     for archivo in archivos:
@@ -129,17 +129,18 @@ def _cmd_convertir(args: argparse.Namespace) -> None:
         print(f"[{i}/{total}] Procesando: {nombre}")
 
     resultados = orq.procesar(archivos, formato, carpeta_salida, cb)
-    print(f"\nCompletado: {len(resultados)} archivo(s) generado(s) en {carpeta_salida}")
+    destino = carpeta_salida or "la carpeta de cada documento"
+    print(f"\nCompletado: {len(resultados)} archivo(s) generado(s) en {destino}")
     for r in resultados:
         print(f"  → {r}")
 
 
-def _convertir_audio_capitulos(archivos: list[Path], voz: str, carpeta_salida: Path) -> None:
+def _convertir_audio_capitulos(archivos: list[Path], voz: str, carpeta_salida: Path | None) -> None:
     from txt2media.generadores.generador_audio import GeneradorAudio
 
     for archivo in archivos:
         doc = _leer_documento(archivo)
-        sub_carpeta = carpeta_salida / archivo.stem
+        sub_carpeta = (carpeta_salida or archivo.parent) / archivo.stem
         gen = GeneradorAudio(voz=voz)
         archivos_gen = gen.generar_capitulos(doc, sub_carpeta)
         print(f"Capítulos generados en {sub_carpeta}:")
@@ -151,14 +152,15 @@ def _convertir_audio_capitulos(archivos: list[Path], voz: str, carpeta_salida: P
             print(f"  → cover.jpg")
 
 
-def _convertir_video(archivos: list[Path], voz: str, carpeta_salida: Path) -> None:
+def _convertir_video(archivos: list[Path], voz: str, carpeta_salida: Path | None) -> None:
     from txt2media.generadores.generador_video import GeneradorVideo
 
-    carpeta_salida.mkdir(parents=True, exist_ok=True)
     gen = GeneradorVideo(voz=voz)
     for archivo in archivos:
         doc = _leer_documento(archivo)
-        salida = carpeta_salida / (archivo.stem + ".mp4")
+        carpeta = carpeta_salida or archivo.parent
+        carpeta.mkdir(parents=True, exist_ok=True)
+        salida = carpeta / (archivo.stem + ".mp4")
         gen.generar(doc, salida)
         print(f"  → {salida}")
 

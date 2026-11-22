@@ -21,7 +21,7 @@ class Orquestador:
         self,
         archivos: list[Path],
         formato: str,
-        carpeta_salida: Path,
+        carpeta_salida: Path | None = None,
         callback_progreso: Callable[[int, int, str], None] | None = None,
     ) -> list[Path]:
         self._cancelar.clear()
@@ -41,7 +41,7 @@ class Orquestador:
 
         return resultados
 
-    def _convertir_uno(self, archivo: Path, formato: str, carpeta_salida: Path) -> Path:
+    def _convertir_uno(self, archivo: Path, formato: str, carpeta_salida: Path | None) -> Path:
         ext = archivo.suffix.lower()
         if ext == ".md":
             from txt2media.lectores.lector_md import LectorMarkdown
@@ -59,6 +59,8 @@ class Orquestador:
             raise ValueError(f"Extensión no soportada: {ext}")
 
         doc = lector.leer(archivo)
+        # Sin carpeta elegida, el resultado queda junto al documento original.
+        carpeta_salida = carpeta_salida or archivo.parent
         salida = carpeta_salida / archivo.with_suffix(f".{formato}").name
         carpeta_salida.mkdir(parents=True, exist_ok=True)
 

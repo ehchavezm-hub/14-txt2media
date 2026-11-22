@@ -527,8 +527,10 @@ class VentanaPrincipal(QMainWindow):
         caja.addWidget(_encabezado("03", "Destino"))
         fila = QHBoxLayout()
         fila.setSpacing(8)
-        self.edit_salida = QLineEdit(".")
-        self.edit_salida.setPlaceholderText("Carpeta donde se guardarán los archivos")
+        self.edit_salida = QLineEdit("")
+        self.edit_salida.setPlaceholderText("Misma carpeta que cada documento")
+        self.edit_salida.setClearButtonEnabled(True)
+        self.edit_salida.setToolTip("Vacío: cada resultado se guarda junto a su documento original")
         self.edit_salida.setAccessibleName("Carpeta de salida")
         btn_carpeta = QPushButton("Examinar")
         btn_carpeta.setObjectName("secundario")
@@ -700,7 +702,7 @@ class VentanaPrincipal(QMainWindow):
         fmt = self.combo_formato.currentData()
         modo = self.combo_modo.currentData()
         voz = self.combo_voz.currentData()
-        carpeta = Path(self.edit_salida.text() or ".")
+        carpeta = self._carpeta_elegida()
 
         self._worker = WorkerConversion(
             archivos=list(self._archivos), formato=fmt,
@@ -744,12 +746,19 @@ class VentanaPrincipal(QMainWindow):
         self.barra_progreso.setValue(100)
         self._fin_trabajo()
         n = len(resultados)
-        carpeta = self.edit_salida.text() or "."
-        destino = "la carpeta actual" if carpeta == "." else carpeta
+        carpetas = sorted({str(Path(r).parent) for r in resultados})
+        self._ultima_carpeta = carpetas[0] if carpetas else None
+        if len(carpetas) == 1:
+            carpeta = carpetas[0]
+        elif carpetas:
+            carpeta = "la carpeta de cada documento"
+        else:
+            carpeta = "—"
         self.lbl_progreso.setText(
-            f"{n} {'archivo generado' if n == 1 else 'archivos generados'} en {destino}"
+            f"{n} {'archivo generado' if n == 1 else 'archivos generados'} en {carpeta}"
         )
-        self.lbl_progreso.setToolTip(carpeta)
+        self.lbl_progreso.setToolTip("\n".join(carpetas))
+        self.btn_abrir_carpeta.setEnabled(bool(carpetas))
         self._set_estado("COMPLETADO", "ok")
         self.btn_abrir_carpeta.setVisible(True)
         self._guardar_ajustes()
@@ -766,10 +775,15 @@ class VentanaPrincipal(QMainWindow):
         self._set_estado("ERROR", "error")
         QMessageBox.critical(self, "Error", mensaje)
 
+    def _carpeta_elegida(self) -> "Path | None":
+        """Carpeta escrita en Destino; None si está vacía (junto a cada original)."""
+        texto = self.edit_salida.text().strip()
+        return Path(texto) if texto and texto != "." else None
+
     def _abrir_carpeta_salida(self) -> None:
         import subprocess
         import sys
-        carpeta = self.edit_salida.text() or "."
+        carpeta = getattr(self, "_ultima_carpeta", None) or str(self._carpeta_elegida() or ".")
         if sys.platform == "win32":
             subprocess.Popen(["explorer", carpeta])
         elif sys.platform == "darwin":
@@ -788,7 +802,7 @@ class VentanaPrincipal(QMainWindow):
                 if idx >= 0:
                     selector.setCurrentIndex(idx)
         carpeta = self._settings.value("carpeta_salida", "")
-        if carpeta:
+        if carpeta and carpeta != ".":  # "." era el antiguo valor por defecto
             self.edit_salida.setText(carpeta)
 
     def _guardar_ajustes(self) -> None:
