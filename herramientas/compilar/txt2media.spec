@@ -1,19 +1,23 @@
 # -*- mode: python ; coding: utf-8 -*-
-# PyInstaller spec para txt2media-gui v1.0.1 (ventana Windows, sin consola)
+# PyInstaller spec para txt2media v1.0.1
 
 import sys
 from pathlib import Path
 
+# El spec vive en herramientas/compilar: la raíz del repositorio está dos niveles arriba
+ROOT = Path(SPECPATH).resolve().parents[1]
+
 block_cipher = None
 
 a = Analysis(
-    ['src/txt2media/ui/ventana_principal.py'],
-    pathex=[str(Path('src').resolve())],
+    [str(ROOT / 'src/txt2media/cli/main.py')],
+    pathex=[str((ROOT / 'src'))],
     binaries=[],
     datas=[
-        ('recursos', 'recursos'),
+        (str(ROOT / 'recursos'), 'recursos'),
     ],
     hiddenimports=[
+        # Core
         'txt2media',
         'txt2media.cli',
         'txt2media.cli.main',
@@ -27,51 +31,73 @@ a = Analysis(
         'txt2media.core.cuota_voz',
         'txt2media.core.renderizador',
         'txt2media.core.orquestador',
+        # Lectores
         'txt2media.lectores',
         'txt2media.lectores.lector_md',
         'txt2media.lectores.lector_docx',
         'txt2media.lectores.lector_epub',
         'txt2media.lectores.lector_pdf',
+        # Generadores
         'txt2media.generadores',
         'txt2media.generadores.generador_pptx',
         'txt2media.generadores.generador_docx',
         'txt2media.generadores.generador_xlsx',
         'txt2media.generadores.generador_audio',
         'txt2media.generadores.generador_video',
+        # Motores
         'txt2media.motores',
         'txt2media.motores.motor_azure',
         'txt2media.motores.motor_edge_tts',
         'txt2media.motores.motor_sapi',
         'txt2media.motores.cadena_voz',
+        # Utils
         'txt2media.utils',
         'txt2media.utils.rutas',
         'txt2media.utils.logging_config',
-        'txt2media.ui',
-        'txt2media.ui.ventana_principal',
-        'txt2media.ui.worker_conversion',
-        'PySide6',
-        'PySide6.QtCore',
-        'PySide6.QtGui',
-        'PySide6.QtWidgets',
+        # Dependencias externas
         'pdfplumber',
-        'pptx', 'pptx.util', 'pptx.dml.color',
+        'pdfplumber.page',
+        'pdfplumber.pdf',
+        'pptx',
+        'pptx.util',
+        'pptx.dml.color',
         'docx',
         'openpyxl',
         'markdown_it',
-        'PIL', 'PIL.Image', 'PIL.ImageDraw', 'PIL.ImageFont',
+        'markdown_it.main',
+        'PIL',
+        'PIL.Image',
+        'PIL.ImageDraw',
+        'PIL.ImageFont',
         'httpx',
         'edge_tts',
-        'keyring', 'keyring.backends', 'keyring.backends.Windows',
+        'keyring',
+        'keyring.backends',
+        'keyring.backends.Windows',
         'bs4',
-        'defusedxml', 'defusedxml.ElementTree',
-        'lxml', 'lxml.etree',
+        'defusedxml',
+        'defusedxml.ElementTree',
+        'lxml',
+        'lxml.etree',
         'langdetect',
         'jsonschema',
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['tkinter', 'matplotlib', 'numpy', 'scipy', 'jupyter', 'IPython'],
+    excludes=[
+        'tkinter',
+        'matplotlib',
+        'numpy',
+        'scipy',
+        'pandas',
+        'jupyter',
+        'IPython',
+        'PySide6',  # GUI opcional, no incluir en CLI portable
+        'PyQt5',
+        'PyQt6',
+        'wx',
+    ],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
@@ -85,12 +111,12 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='txt2media-gui',
+    name='txt2media',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=False,
-    console=False,        # SIN ventana DOS
+    upx=False,          # UPX desactivado — reduce falsos positivos antivirus
+    console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
@@ -107,5 +133,5 @@ coll = COLLECT(
     strip=False,
     upx=False,
     upx_exclude=[],
-    name='txt2media-gui',
+    name='txt2media',
 )

@@ -63,6 +63,8 @@ def main():
 
     # Ejecutar el instalador BAT (el que muestra la ventana verde)
     bat = os.path.join(install_dir, "instalar_universal.bat")
+    if not os.path.exists(bat):
+        bat = os.path.join(install_dir, "herramientas", "instalacion", "instalar_universal.bat")
     subprocess.call(["cmd", "/c", bat], cwd=install_dir)
 
 

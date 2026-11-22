@@ -36,3 +36,6 @@ dist/
 *.key
 *.pem
 secrets.json
+
+# Pruebas
+.pytest_cache/

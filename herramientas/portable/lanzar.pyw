@@ -8,6 +8,11 @@ import os
 import runpy
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
+# En el ZIP portable src/ está al lado; en el repositorio, dos niveles arriba.
+for _base in (_HERE, os.path.dirname(os.path.dirname(_HERE))):
+    if os.path.isdir(os.path.join(_base, "src")):
+        _HERE = _base
+        break
 _SRC  = os.path.join(_HERE, "src")
 
 for _p in (_SRC, _HERE):

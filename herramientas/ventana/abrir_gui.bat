@@ -1,6 +1,6 @@
 @echo off
 REM abrir_gui.bat — Abre la interfaz grafica
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 
 set PYCMD=
 py -3.14 --version >nul 2>&1 && set PYCMD=py -3.14

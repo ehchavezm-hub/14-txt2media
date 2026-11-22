@@ -1,8 +1,8 @@
 @echo off
 REM instalar.bat — Configura TODO automáticamente. Ejecutar UNA SOLA VEZ.
 REM NOTA: Para compatibilidad universal (S Mode, 32-bit, ARM) usa instalar_universal.bat
-cd /d "%~dp0"
-set REPO=%~dp0
+cd /d "%~dp0..\.."
+set REPO=%CD%\
 
 echo =============================================
 echo  txt2media — Configuracion automatica
@@ -44,7 +44,7 @@ REM 4. Crear tarea programada: auto-guardar en GitHub cada 5 minutos (silencioso
 schtasks /delete /tn "txt2media-autosave" /f >nul 2>&1
 schtasks /create ^
   /tn "txt2media-autosave" ^
-  /tr "powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File \"%REPO%auto_guardar.ps1\"" ^
+  /tr "powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File \"%REPO%herramientas\mantenimiento\auto_guardar.ps1\"" ^
   /sc minute /mo 5 ^
   /ru "%USERNAME%" ^
   /f >nul 2>&1

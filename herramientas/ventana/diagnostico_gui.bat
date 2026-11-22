@@ -1,6 +1,6 @@
 @echo off
 REM diagnostico_gui.bat — Muestra errores sin cerrarse
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 echo =========================================
 echo  txt2media — Diagnostico GUI
 echo =========================================

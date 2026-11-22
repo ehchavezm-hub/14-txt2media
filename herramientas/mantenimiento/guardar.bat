@@ -1,6 +1,6 @@
 @echo off
 REM guardar.bat — Guarda todo en GitHub con un doble clic
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 echo Guardando en GitHub...
 git add -A
 git diff --cached --quiet >nul 2>&1

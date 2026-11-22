@@ -4,14 +4,17 @@
 import sys
 from pathlib import Path
 
+# El spec vive en herramientas/compilar: la raíz del repositorio está dos niveles arriba
+ROOT = Path(SPECPATH).resolve().parents[1]
+
 block_cipher = None
 
 a = Analysis(
-    ['src/txt2media/ui/ventana_principal.py'],
-    pathex=[str(Path('src').resolve())],
+    [str(ROOT / 'src/txt2media/ui/ventana_principal.py')],
+    pathex=[str((ROOT / 'src'))],
     binaries=[],
     datas=[
-        ('recursos', 'recursos'),
+        (str(ROOT / 'recursos'), 'recursos'),
     ],
     hiddenimports=[
         'txt2media',

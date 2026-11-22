@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 REM txt2media_gui.bat — Abre la interfaz gráfica sin ventana DOS
 REM Doble clic para abrir. También se puede poner en el Escritorio.
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 
 REM Detectar Python (preferir 3.14/3.13 — Pillow no soporta 3.15 aun)
 set PYCMD=

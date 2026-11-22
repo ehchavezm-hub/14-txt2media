@@ -1,5 +1,5 @@
 @echo off
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 set PYCMD=
 py -3.14 --version >nul 2>&1 && set PYCMD=py -3.14
 if "%PYCMD%"=="" py -3.13 --version >nul 2>&1 && set PYCMD=py -3.13

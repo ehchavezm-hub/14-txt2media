@@ -111,18 +111,34 @@ py -3.13 -m pytest tests/ -v
 
 ## Estructura del proyecto
 
+En la raíz solo queda lo necesario. **El único archivo para ejecutar es `txt2media.cmd`.**
+
 ```
 txt2media/
-├── src/txt2media/
-│   ├── core/          # Modelo, configuración, cadena de voz
-│   ├── lectores/      # EPUB, PDF, DOCX, Markdown
-│   ├── generadores/   # PPTX, DOCX, XLSX, Audio, Video
-│   ├── motores/       # Azure, edge-tts, SAPI
-│   ├── ui/            # PySide6 GUI
-│   ├── cli/           # Interfaz de línea de comandos
-│   └── utils/         # Rutas, logging
-├── tests/
-├── recursos/
-├── pyproject.toml
-└── verificar.bat
+├── txt2media.cmd        ← EJECUTAR ESTE (git pull + abre la app o la CLI)
+├── README.md            Guía de uso
+├── CHANGELOG.md         Historial de cambios
+├── LICENCIAS.md         Licencias de dependencias
+├── CLAUDE.md            Instrucciones para Claude
+├── pyproject.toml       Dependencias y metadatos de Python
+├── src/txt2media/       Código de la aplicación
+│   ├── core/            Modelo, configuración, tema
+│   ├── lectores/        EPUB, PDF, DOCX, Markdown
+│   ├── generadores/     PPTX, DOCX, XLSX, MD, HTML, Audio, Video
+│   ├── motores/         Voz: Azure, edge-tts, SAPI
+│   ├── ui/              Ventana (PySide6)
+│   ├── cli/             Línea de comandos
+│   └── utils/           Rutas, seguridad, logging
+├── tests/               Pruebas automáticas (pytest)
+├── recursos/            Fuentes y tema
+├── assets/              Icono
+├── docs/                Documento de alcance e investigación
+└── herramientas/        Scripts secundarios (no hace falta usarlos a diario)
+    ├── portable/        ejecutar.bat, lanzar.pyw (van dentro del ZIP portable)
+    ├── compilar/        build_exe.bat, construir_portable.bat, main_exe.py, *.spec
+    ├── instalacion/     instalar.bat, instalar_universal.bat, crear_acceso.py
+    ├── ventana/         Lanzadores antiguos de la ventana y diagnóstico
+    └── mantenimiento/   guardar.bat, auto_guardar.ps1, verificar.bat, test_video.bat
 ```
+
+Detalle de cada script en [`herramientas/README.md`](herramientas/README.md).

@@ -8,6 +8,7 @@
 - "Abrir carpeta" abre la carpeta donde quedó realmente el resultado
 
 ### Terminal
+- Raíz ordenada: solo queda `txt2media.cmd` para ejecutar; los scripts secundarios pasan a `herramientas/` (portable, compilar, instalacion, ventana, mantenimiento) con sus rutas ajustadas. Nada se eliminó
 - Nuevo `txt2media.cmd`: hace `git pull`, instala dependencias si cambiaron y abre la ventana o ejecuta la CLI. En una carpeta descomprimida del ZIP la conecta con GitHub la primera vez; también va dentro del ZIP portable
 - Corregido `ejecutar.bat`: la ventana se cerraba sin abrir la app (convertía `py -3.13` en `pythonw -3.13`, un comando inválido); ahora muestra el error si algo falla
 - `txt2media.cmd` detecta si Python carga una copia vieja de otra carpeta (p. ej. un ZIP en Descargas) y reinstala desde la carpeta actual

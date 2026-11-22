@@ -1,7 +1,7 @@
 import sys, traceback, time
 from pathlib import Path
 
-HERE = Path(__file__).parent
+HERE = Path(__file__).resolve().parents[2]  # raíz del repositorio
 pdf = list(HERE.glob("*.pdf"))
 if not pdf:
     print("ERROR: No hay PDF en esta carpeta")

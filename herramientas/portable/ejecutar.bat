@@ -1,7 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
 title txt2media — Ejecutar con Python
-cd /d "%~dp0"
+REM En el ZIP portable el proyecto esta al lado; en el repositorio, dos niveles arriba.
+set "RAIZ=%~dp0"
+if not exist "%RAIZ%pyproject.toml" set "RAIZ=%~dp0..\..\"
+cd /d "%RAIZ%"
 
 echo.
 echo  =====================================================
@@ -42,8 +45,8 @@ echo  Instalando dependencias (primera vez, puede tardar)...
 echo.
 REM Un Python recien instalado no trae setuptools, que hace falta para instalar la app.
 !PYCMD! -m pip install -q --upgrade pip setuptools wheel --no-warn-script-location
-!PYCMD! -m pip install --no-build-isolation -e "%~dp0." -q --no-warn-script-location
-if errorlevel 1 !PYCMD! -m pip install -e "%~dp0." -q --no-warn-script-location
+!PYCMD! -m pip install --no-build-isolation -e "%RAIZ%." -q --no-warn-script-location
+if errorlevel 1 !PYCMD! -m pip install -e "%RAIZ%." -q --no-warn-script-location
 if errorlevel 1 (
     echo.
     echo  [ERROR] No se pudieron instalar las dependencias.

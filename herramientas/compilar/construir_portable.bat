@@ -1,7 +1,7 @@
 @echo off
 REM construir_portable.bat — Genera dist\txt2media\ portable para Windows
 REM Ejecutar desde la carpeta raiz del proyecto como Administrador
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 
 echo =============================================
 echo  txt2media v1.0.1 — Construir version portable
@@ -40,7 +40,7 @@ if exist "build" rmdir /s /q "build"
 REM Construir
 echo [4/4] Construyendo ejecutable portable...
 echo     (puede tardar 2-5 minutos)
-%PYCMD% -m PyInstaller txt2media.spec --noconfirm --clean
+%PYCMD% -m PyInstaller herramientas\compilar\txt2media.spec --noconfirm --clean
 if errorlevel 1 (
     echo [ERROR] PyInstaller fallo. Ver mensajes arriba.
     pause & exit /b 1

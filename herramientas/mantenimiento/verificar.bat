@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0..\.."
 REM verificar.bat — Verifica la instalación de txt2media v1.0.1
 echo =================================================
 echo  txt2media v1.0.1 — Verificacion del sistema

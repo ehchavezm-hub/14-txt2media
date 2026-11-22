@@ -825,7 +825,7 @@ def lanzar_app() -> None:
     if not _PYSIDE6_OK:
         try:
             import tkinter.messagebox as mb
-            mb.showerror("txt2media", "PySide6 no instalado.\nEjecuta instalar.bat primero.")
+            mb.showerror("txt2media", "PySide6 no instalado.\nEjecuta txt2media.cmd primero.")
         except Exception:
             pass
         return

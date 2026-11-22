@@ -1,7 +1,7 @@
 @echo off
 :: build_exe.bat — Genera txt2media.exe portable (sin instalacion, sin admin)
 :: Requisito: Python 3.12+ instalado
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 
 echo.
 echo  ===================================================
@@ -33,7 +33,7 @@ python -m PyInstaller ^
   --hidden-import keyring.backends.Windows ^
   --hidden-import langdetect ^
   %ICON_OPT% ^
-  main_exe.py
+  herramientas\compilar\main_exe.py
 
 if not exist "dist\txt2media.exe" (
     echo [ERROR] No se genero el EXE. Revisa los mensajes de error arriba.

@@ -39,7 +39,7 @@ jobs:
             --hidden-import langdetect `
             --add-data "recursos;." `
             $icon `
-            main_exe.py
+            herramientas/compilar/main_exe.py
         shell: pwsh
 
       - name: Upload EXE artifact
@@ -54,11 +54,11 @@ jobs:
           $zip = "dist\txt2media_python.zip"
           $tmp = "dist\zip_tmp\txt2media"
           New-Item -ItemType Directory -Force -Path $tmp | Out-Null
-          Copy-Item "ejecutar.bat"   $tmp
+          Copy-Item "herramientas\portable\ejecutar.bat" $tmp
           Copy-Item "txt2media.cmd"  $tmp
-          Copy-Item "lanzar.pyw"     $tmp
+          Copy-Item "herramientas\portable\lanzar.pyw"   $tmp
           Copy-Item "pyproject.toml" $tmp
-          Copy-Item "main_exe.py"    $tmp
+          Copy-Item "herramientas\compilar\main_exe.py" $tmp
           Copy-Item "src"            $tmp -Recurse
           if (Test-Path "assets") { Copy-Item "assets" $tmp -Recurse }
           if (Test-Path "recursos") { Copy-Item "recursos" $tmp -Recurse }
