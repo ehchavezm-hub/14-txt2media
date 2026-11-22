@@ -46,6 +46,7 @@ class GeneradorDOCX:
         os.close(fd)
         try:
             d.save(tmp)
+            os.chmod(tmp, 0o644)  # mkstemp crea el archivo solo para el dueño
             os.replace(tmp, salida)
         except Exception:
             try:

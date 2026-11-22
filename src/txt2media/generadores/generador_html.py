@@ -325,6 +325,7 @@ class GeneradorHTML:
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(contenido)
+            os.chmod(tmp, 0o644)  # mkstemp crea el archivo solo para el dueño
             os.replace(tmp, salida)
         except Exception:
             try:
