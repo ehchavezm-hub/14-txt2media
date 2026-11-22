@@ -244,7 +244,7 @@ Structural geometry sits on a 4px grid: node origins, widths, heights, gaps, and
 | Max arrows / transitions | 12 |
 | Max coral elements | 2 |
 | Max annotation callouts | 2 |
-| Max motion (optional) | 8 steps, 12 marked items, 2 simultaneous items — see [animation.md](references/animation.md) |
+| Max motion (optional) | 8 steps, 12 marked items, 2 simultaneous items — see [animation.md](references/animation.md). **diagram-design · Paso a Paso** (opt-in `data-motion-budget="extended"`, step mode): up to 1000 steps — see [animation.md § Paso a Paso](references/animation.md#paso-a-paso-extended-budget) |
 
 Per-type limits (lifelines, lanes, series, bars, stages, and the rest): [layout-budget.md § Complexity budget](references/layout-budget.md#complexity-budget-per-diagram). Check your type's row before drawing.
 

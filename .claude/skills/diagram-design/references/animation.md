@@ -133,6 +133,26 @@ Then verify in a browser:
 5. Capture `?motion=static` twice after `document.fonts.ready`: pixels are stable.
 6. Print preview plus PNG/SVG export: controls and decorative tokens are absent, while all semantic labels and relationships remain.
 
+## Paso a Paso (extended budget)
+
+**diagram-design · Paso a Paso** is the 100-LIBRERIA extension of this skill. Opt-in for long walkthroughs of large process maps, where each activity is one step. Add `data-motion-budget="extended"` to the `[data-motion-root]`; without it every limit above stays as written.
+
+| Limit | Default | Extended |
+|---|---|---|
+| Semantic steps | 1–8 | 1–1000 |
+| Marked items | 12 | 5000 |
+| Semantic items per step | 2 | 12 |
+| Modes | all | `step` and controlled `reveal` only |
+
+Rules that still apply in extended mode:
+
+- **Step mode is the default.** Autoplay `reveal` stays one run and must keep `--motion-total` ≤ 8000ms; with many steps use `step` and let the reader drive.
+- **Add a scrubber.** Put `<input type="range" data-motion-scrubber aria-label="Paso">` inside `[data-motion-controls]`. The canonical controller binds it (min 0, max = step count) and keeps it in sync; it is disabled with the other controls under reduced motion. PageUp/PageDown jump by 5 % of the steps.
+- **Hold per step** may drop to 240ms (`--motion-hold`) so Play stays usable; never below 160ms.
+- Every other rule holds: static-first source, complete end frame, reduced-motion fallback, print and export at the final state, keyboard access, no `setInterval`.
+
+`scripts/self_check.py` enforces the extended limits only when the attribute is present.
+
 ## Anti-patterns
 
 - Unrequested autoplay, autoplay outside the single sanctioned `reveal` run, viewport re-entry, or an endless semantic loop.

@@ -1058,12 +1058,18 @@ def check_motion(parser: DiagramParser, source: str, errors: list[str]) -> None:
         errors.append("data-step-count must be an ASCII decimal integer")
     else:
         count = int(raw_count)
+    # diagram-design · Paso a Paso (100-LIBRERIA extension): data-motion-budget="extended" raises the motion budget for
+    # long step-through walkthroughs (up to 1000 steps). The default budget is unchanged.
+    extended = root.get("data-motion-budget", "") == "extended"
+    if extended and mode not in {"step", "reveal"}:
+        errors.append("data-motion-budget=extended is only valid with step or reveal mode")
+    max_steps, max_items, per_step = (1000, 5000, 12) if extended else (8, 12, 2)
     minimum_count = 0 if mode == "none" else 1
-    if count < minimum_count or count > 8:
-        errors.append(f"semantic step count must be {minimum_count}..8; got {count}")
+    if count < minimum_count or count > max_steps:
+        errors.append(f"semantic step count must be {minimum_count}..{max_steps}; got {count}")
 
-    if len(parser.items) > 12:
-        errors.append(f"motion item budget is 12; found {len(parser.items)}")
+    if len(parser.items) > max_items:
+        errors.append(f"motion item budget is {max_items}; found {len(parser.items)}")
     semantic_steps: list[int] = []
     for index, item in enumerate(parser.items, 1):
         raw_step = item.get("data-step", "")
@@ -1085,9 +1091,9 @@ def check_motion(parser: DiagramParser, source: str, errors: list[str]) -> None:
     expected = set(range(1, count + 1)) if count > 0 else set()
     if set(semantic_steps) != expected:
         errors.append(f"semantic steps must be contiguous 1..{count}; found {sorted(set(semantic_steps))}")
-    crowded = {step: n for step, n in Counter(semantic_steps).items() if n > 2}
+    crowded = {step: n for step, n in Counter(semantic_steps).items() if n > per_step}
     if crowded:
-        errors.append(f"no more than two semantic items may share a step; found {crowded}")
+        errors.append(f"no more than {per_step} semantic items may share a step; found {crowded}")
 
     if mode in {"none", "loop"} and parser.scripts:
         errors.append(f"{mode} mode must be script-free")

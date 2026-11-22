@@ -269,6 +269,7 @@
         const controls = root.querySelector('[data-motion-controls]');
         const status = root.querySelector('[data-motion-status]');
         const visibleStep = root.querySelector('[data-motion-step-label]');
+        const scrubber = root.querySelector('[data-motion-scrubber]');  // diagram-design · Paso a Paso: jump to any step
         let step = count;
         let timer = 0;
         let playing = false;
@@ -282,7 +283,7 @@
           controls.hidden = !available;
           controls.setAttribute('aria-hidden', String(!available));
           controls.dataset.playbackDisabled = String(!available);
-          controls.querySelectorAll('button').forEach((control) => { control.disabled = !available; });
+          controls.querySelectorAll('button, [data-motion-scrubber]').forEach((control) => { control.disabled = !available; });
         };
 
         function render(next, userInitiated = false) {
@@ -295,6 +296,7 @@
             item.classList.toggle('is-current', itemStep === step);
           });
           if (visibleStep) visibleStep.textContent = String(step);
+          if (scrubber) scrubber.value = String(step);
           const unavailable = controls.dataset.playbackDisabled === 'true';
           buttons('prev').disabled = unavailable || step === 0;
           buttons('next').disabled = unavailable || step === count;
@@ -345,9 +347,17 @@
           if (action === 'next') { pause(false); render(step + 1, true); }
         });
 
+        if (scrubber) {
+          scrubber.min = '0';
+          scrubber.max = String(count);
+          scrubber.step = '1';
+          scrubber.addEventListener('input', () => { pause(false); render(Number(scrubber.value), true); });
+        }
+
         root.addEventListener('keydown', (event) => {
           if (event.target.matches('input, textarea, select, a[href]')) return;
-          const keys = { ArrowLeft: step - 1, ArrowRight: step + 1, Home: 0, End: count };
+          const jump = Math.max(1, Math.round(count / 20));
+          const keys = { ArrowLeft: step - 1, ArrowRight: step + 1, PageUp: step - jump, PageDown: step + jump, Home: 0, End: count };
           if (event.code === 'Space' && !event.target.closest('button')) {
             event.preventDefault();
             playing ? pause(true) : play(false, true);
