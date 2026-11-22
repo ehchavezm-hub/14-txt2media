@@ -8,6 +8,8 @@
 - Nuevo `txt2media.cmd`: hace `git pull`, instala dependencias si cambiaron y abre la ventana o ejecuta la CLI. En una carpeta descomprimida del ZIP la conecta con GitHub la primera vez; también va dentro del ZIP portable
 - Corregido `ejecutar.bat`: la ventana se cerraba sin abrir la app (convertía `py -3.13` en `pythonw -3.13`, un comando inválido); ahora muestra el error si algo falla
 - `txt2media.cmd` detecta si Python carga una copia vieja de otra carpeta (p. ej. un ZIP en Descargas) y reinstala desde la carpeta actual
+- `txt2media.cmd` y `ejecutar.bat` instalan `setuptools` antes que la app (un Python recién instalado no lo trae)
+- `txt2media.cmd` se reinicia solo si `git pull` lo actualiza mientras corre
 - `.gitattributes`: los `.bat` y `.cmd` se guardan con fin de línea de Windows (CRLF)
 
 ### Interfaz

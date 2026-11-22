@@ -30,7 +30,7 @@ if not defined PY (
     exit /b 1
 )
 
-REM ---- 2. git pull -----------------------------------------------------------
+REM ---- 2. Actualizar desde GitHub ---------------------------------------------
 set "REINSTALAR="
 if defined TXT2MEDIA_SIN_PULL goto :Dependencias
 git --version >nul 2>&1 || (
@@ -41,14 +41,24 @@ if not exist "%RAIZ%\.git" goto :Conectar
 set "ANTES="
 for /f %%h in ('git -C "%RAIZ%" rev-parse HEAD') do set "ANTES=%%h"
 echo [git] Actualizando desde GitHub...
-git -C "%RAIZ%" pull --ff-only
-if errorlevel 1 (
-    echo [AVISO] git pull no se pudo completar ^(sin conexion o cambios locales^).
-    echo         Se continua con la version local.
+REM El bloque se lee completo antes de ejecutarse: si git pull cambia este mismo
+REM archivo, el script se reinicia con la version nueva en vez de leerla a medias.
+(
+    git -C "%RAIZ%" pull --ff-only
+    if errorlevel 1 (
+        echo [AVISO] git pull no se pudo completar ^(sin conexion o cambios locales^).
+        echo         Se continua con la version local.
+        goto :Dependencias
+    )
+    git -C "%RAIZ%" diff --quiet %ANTES% HEAD -- pyproject.toml || set "TXT2MEDIA_REINSTALAR=1"
+    git -C "%RAIZ%" diff --quiet %ANTES% HEAD -- txt2media.cmd || (
+        echo [git] txt2media.cmd se actualizo. Reiniciando con la version nueva...
+        set "TXT2MEDIA_SIN_PULL=1"
+        cmd /c ""%~f0" %*"
+        exit /b
+    )
     goto :Dependencias
 )
-git -C "%RAIZ%" diff --quiet %ANTES% HEAD -- pyproject.toml || set "REINSTALAR=1"
-goto :Dependencias
 
 :Conectar
 REM Carpeta descomprimida de un ZIP: se conecta con GitHub una sola vez.
@@ -68,21 +78,24 @@ echo [git] Listo: esta carpeta ya se actualiza desde GitHub.
 set "REINSTALAR=1"
 
 :Dependencias
-REM ---- 3. Dependencias (solo si faltan o cambio pyproject.toml) ---------------
+REM ---- 3. Dependencias (solo si faltan, cambio pyproject.toml o vienen de otra carpeta)
+if defined TXT2MEDIA_REINSTALAR set "REINSTALAR=1"
 %PY% -c "import txt2media, PySide6, pdfplumber, edge_tts" >nul 2>&1 || set "REINSTALAR=1"
 REM Si Python carga txt2media desde otra carpeta (p. ej. un ZIP viejo en Descargas),
 REM se reinstala desde esta para que siempre se use el codigo actualizado.
 %PY% -c "import os,sys,txt2media as t; a=os.path.normcase(os.path.abspath(t.__file__)); b=os.path.normcase(os.path.abspath(sys.argv[1])); sys.exit(0 if a.startswith(b) else 1)" "%RAIZ%" >nul 2>&1 || set "REINSTALAR=1"
-if defined REINSTALAR (
-    echo [pip] Instalando dependencias...
-    %PY% -m pip install -e "%RAIZ%" --no-build-isolation -q --no-warn-script-location
-    if errorlevel 1 %PY% -m pip install -e "%RAIZ%" -q --no-warn-script-location
-    if errorlevel 1 (
-        echo [ERROR] No se pudieron instalar las dependencias. Revisa el mensaje de pip arriba.
-        exit /b 1
-    )
-)
+if not defined REINSTALAR goto :Ejecutar
+echo [pip] Instalando dependencias ^(la primera vez tarda unos minutos^)...
+REM Un Python recien instalado no trae setuptools, que hace falta para instalar la app.
+%PY% -m pip install -q --upgrade pip setuptools wheel --no-warn-script-location
+%PY% -m pip install -e "%RAIZ%" --no-build-isolation -q --no-warn-script-location
+if not errorlevel 1 goto :Ejecutar
+%PY% -m pip install -e "%RAIZ%" -q --no-warn-script-location
+if not errorlevel 1 goto :Ejecutar
+echo [ERROR] No se pudieron instalar las dependencias. Revisa el mensaje de pip arriba.
+exit /b 1
 
+:Ejecutar
 REM ---- 4. Ejecutar -----------------------------------------------------------
 set "PYTHONPATH=%RAIZ%\src;%PYTHONPATH%"
 if "%~1"=="" goto :Ventana

@@ -40,6 +40,8 @@ if not errorlevel 1 (
 REM ── Solo si no esta instalado: instalar dependencias ─────────────────────────
 echo  Instalando dependencias (primera vez, puede tardar)...
 echo.
+REM Un Python recien instalado no trae setuptools, que hace falta para instalar la app.
+!PYCMD! -m pip install -q --upgrade pip setuptools wheel --no-warn-script-location
 !PYCMD! -m pip install --no-build-isolation -e "%~dp0." -q --no-warn-script-location
 if errorlevel 1 !PYCMD! -m pip install -e "%~dp0." -q --no-warn-script-location
 if errorlevel 1 (
