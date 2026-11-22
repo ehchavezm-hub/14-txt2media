@@ -21,7 +21,7 @@ if errorlevel 1 (
 :: Compilar EXE
 echo  [2/3] Compilando EXE...
 set ICON_OPT=
-if exist "assets\icon.ico" set ICON_OPT=--icon=assets\icon.ico
+if exist "recursos\icon.ico" set ICON_OPT=--icon=recursos\icon.ico
 
 python -m PyInstaller ^
   --onefile ^

@@ -40,7 +40,7 @@ def find_pythonw():
 # Este archivo vive en herramientas/instalacion: la raíz del repositorio está dos niveles arriba
 here = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 launcher = os.path.join(here, "herramientas", "portable", "lanzar.pyw")
-icon = os.path.join(here, "assets", "icon.ico")
+icon = os.path.join(here, "recursos", "icon.ico")
 if not os.path.exists(icon):
     icon = os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32", "imageres.dll") + ",11"
 

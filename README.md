@@ -117,8 +117,6 @@ En la raíz solo queda lo necesario. **El único archivo para ejecutar es `txt2m
 txt2media/
 ├── txt2media.cmd        ← EJECUTAR ESTE (git pull + abre la app o la CLI)
 ├── README.md            Guía de uso
-├── CHANGELOG.md         Historial de cambios
-├── LICENCIAS.md         Licencias de dependencias
 ├── CLAUDE.md            Instrucciones para Claude
 ├── pyproject.toml       Dependencias y metadatos de Python
 ├── src/txt2media/       Código de la aplicación
@@ -130,9 +128,8 @@ txt2media/
 │   ├── cli/             Línea de comandos
 │   └── utils/           Rutas, seguridad, logging
 ├── tests/               Pruebas automáticas (pytest)
-├── recursos/            Fuentes y tema
-├── assets/              Icono
-├── docs/                Documento de alcance e investigación
+├── recursos/            Fuentes, tema e icono
+├── docs/                Historial de cambios, licencias, alcance e investigación
 └── herramientas/        Scripts secundarios (no hace falta usarlos a diario)
     ├── portable/        ejecutar.bat, lanzar.pyw (van dentro del ZIP portable)
     ├── compilar/        build_exe.bat, construir_portable.bat, main_exe.py, *.spec
