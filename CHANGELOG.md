@@ -2,9 +2,12 @@
 
 ## [Sin publicar]
 
+- Tres temas claros (azul, verde azulado, índigo) que se eligen arriba a la derecha; la ventana recuerda el elegido
+
 ### Terminal
 - Nuevo `txt2media.cmd`: hace `git pull`, instala dependencias si cambiaron y abre la ventana o ejecuta la CLI. En una carpeta descomprimida del ZIP la conecta con GitHub la primera vez; también va dentro del ZIP portable
 - Corregido `ejecutar.bat`: la ventana se cerraba sin abrir la app (convertía `py -3.13` en `pythonw -3.13`, un comando inválido); ahora muestra el error si algo falla
+- `txt2media.cmd` detecta si Python carga una copia vieja de otra carpeta (p. ej. un ZIP en Descargas) y reinstala desde la carpeta actual
 - `.gitattributes`: los `.bat` y `.cmd` se guardan con fin de línea de Windows (CRLF)
 
 ### Interfaz

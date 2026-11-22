@@ -70,6 +70,9 @@ set "REINSTALAR=1"
 :Dependencias
 REM ---- 3. Dependencias (solo si faltan o cambio pyproject.toml) ---------------
 %PY% -c "import txt2media, PySide6, pdfplumber, edge_tts" >nul 2>&1 || set "REINSTALAR=1"
+REM Si Python carga txt2media desde otra carpeta (p. ej. un ZIP viejo en Descargas),
+REM se reinstala desde esta para que siempre se use el codigo actualizado.
+%PY% -c "import os,sys,txt2media as t; a=os.path.normcase(os.path.abspath(t.__file__)); b=os.path.normcase(os.path.abspath(sys.argv[1])); sys.exit(0 if a.startswith(b) else 1)" "%RAIZ%" >nul 2>&1 || set "REINSTALAR=1"
 if defined REINSTALAR (
     echo [pip] Instalando dependencias...
     %PY% -m pip install -e "%RAIZ%" --no-build-isolation -q --no-warn-script-location
@@ -81,6 +84,7 @@ if defined REINSTALAR (
 )
 
 REM ---- 4. Ejecutar -----------------------------------------------------------
+set "PYTHONPATH=%RAIZ%\src;%PYTHONPATH%"
 if "%~1"=="" goto :Ventana
 if /i "%~1"=="gui" goto :Ventana
 if /i "%~1"=="actualizar" (

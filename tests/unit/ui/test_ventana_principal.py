@@ -97,6 +97,17 @@ class TestVentanaPrincipal:
         assert ventana.pila_entrada.currentIndex() == 0
 
 
+    def test_tres_temas_claros_y_se_recuerdan(self, ventana):
+        from PySide6.QtCore import QSettings
+        from txt2media.ui.ventana_principal import _TEMAS
+        assert len(_TEMAS) == 3
+        assert len(ventana._grupo_tema.buttons()) == 3
+        for clave in _TEMAS:
+            ventana._aplicar_tema(clave)
+            assert ventana._tema == clave
+            assert QSettings("txt2media", "txt2media").value("tema") == clave
+
+
 @skip_sin_qt
 class TestWorkerConversion:
     def test_worker_crea_sin_error(self, app, tmp_path):

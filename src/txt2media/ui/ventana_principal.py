@@ -1,6 +1,6 @@
 """Ventana principal txt2media — interfaz minimalista PySide6.
 
-Dirección visual: panel de instrumento en tema claro. Fondo blanco, líneas finas, un único
+Dirección visual: panel de instrumento en tema claro (tres variantes). Fondo blanco, líneas finas, un único
 color de señal (azul hielo) reservado para foco, selección y progreso. Texto en
 Figtree; datos (formatos, tamaños, estado) en monoespaciada.
 """
@@ -24,20 +24,20 @@ except ImportError:
 _VERSION = "1.0.1"
 _EXTENSIONES = (".epub", ".pdf", ".docx", ".md")
 
-# ── Tokens de diseño ───────────────────────────────────────────────────────
-_C = {
-    "fondo":      "#FFFFFF",
-    "panel":      "#F5F6F8",
-    "elevado":    "#EEF3FB",
-    "linea":      "#E3E6EB",
-    "linea_2":    "#CBD1D9",
-    "texto":      "#12171D",
-    "texto_2":    "#4E5865",
-    "texto_3":    "#8A939E",
-    "senal":      "#1F64D6",
-    "ok":         "#1E9A68",
-    "error":      "#D14343",
+# ── Tokens de diseño: tres temas claros ────────────────────────────────────
+_BASE = {"ok": "#1E9A68", "error": "#D14343"}
+_TEMAS = {
+    "azul": dict(_BASE, nombre="Claro azul",
+        fondo="#FFFFFF", panel="#F5F6F8", elevado="#EEF3FB", linea="#E3E6EB", linea_2="#CBD1D9",
+        texto="#12171D", texto_2="#4E5865", texto_3="#8A939E", senal="#1F64D6"),
+    "verde": dict(_BASE, nombre="Claro verde azulado",
+        fondo="#FCFDFD", panel="#F1F4F4", elevado="#E5F2F0", linea="#DDE4E4", linea_2="#C3CECD",
+        texto="#0F1B1B", texto_2="#475757", texto_3="#839393", senal="#0E7C72"),
+    "indigo": dict(_BASE, nombre="Claro índigo",
+        fondo="#FFFFFF", panel="#F6F6FA", elevado="#EFEEFD", linea="#E4E4EE", linea_2="#CDCDDC",
+        texto="#15151F", texto_2="#4F4F68", texto_3="#8B8BA2", senal="#4F46E5"),
 }
+_TEMA_PREDETERMINADO = "azul"
 _SANS = "'Figtree', 'Segoe UI', 'Inter', sans-serif"
 _MONO = "'Cascadia Mono', 'Consolas', 'JetBrains Mono', 'DejaVu Sans Mono', monospace"
 
@@ -54,7 +54,8 @@ _FORMATOS_MEDIO = [
 ]
 _NOMBRE_FORMATO = {d: c for c, _, d in _FORMATOS_DOC + _FORMATOS_MEDIO}
 
-_QSS = f"""
+def _construir_qss(_C: dict) -> str:
+    return f"""
 * {{ font-family: {_SANS}; outline: none; }}
 QMainWindow, QWidget#central {{ background: {_C['fondo']}; }}
 QLabel {{ color: {_C['texto_2']}; font-size: 13px; background: transparent; }}
@@ -142,6 +143,10 @@ QProgressBar::chunk {{ background: {_C['senal']}; }}
 QScrollBar:vertical {{ background: transparent; width: 8px; margin: 0; }}
 QScrollBar::handle:vertical {{ background: {_C['linea_2']}; border-radius: 4px; min-height: 24px; }}
 QScrollBar::add-line, QScrollBar::sub-line {{ height: 0; }}
+QPushButton#muestra {{ border-radius: 7px; min-width: 14px; max-width: 14px; min-height: 14px; max-height: 14px; border: 2px solid transparent; }}
+QPushButton#muestra:checked {{ border: 2px solid {_C['texto']}; }}
+QPushButton#muestra:hover {{ border: 2px solid {_C['linea_2']}; }}
+QPushButton#muestra:checked:hover {{ border: 2px solid {_C['texto']}; }}
 QToolTip {{ background: {_C['elevado']}; color: {_C['texto']}; border: 1px solid {_C['linea_2']}; padding: 4px 8px; }}
 """
 
@@ -352,7 +357,12 @@ class VentanaPrincipal(QMainWindow):
         self._worker = None
         self._archivos: list[Path] = []
         self._settings = QSettings("txt2media", "txt2media") if _PYSIDE6_OK else None
-        self.setStyleSheet(_QSS)
+        self._tema = _TEMA_PREDETERMINADO
+        if self._settings:
+            guardado = self._settings.value("tema", _TEMA_PREDETERMINADO)
+            if guardado in _TEMAS:
+                self._tema = guardado
+        self.setStyleSheet(_construir_qss(_TEMAS[self._tema]))
         self._init_ui()
         self._restaurar_ajustes()
         self._actualizar_estado_entrada()
@@ -396,6 +406,22 @@ class VentanaPrincipal(QMainWindow):
         caja.addWidget(marca)
         caja.addWidget(version)
         caja.addStretch()
+
+        self._grupo_tema = QButtonGroup(self)
+        self._grupo_tema.setExclusive(True)
+        for clave, tema in _TEMAS.items():
+            muestra = QPushButton()
+            muestra.setObjectName("muestra")
+            muestra.setCheckable(True)
+            muestra.setCursor(Qt.CursorShape.PointingHandCursor)
+            muestra.setToolTip(tema["nombre"])
+            muestra.setAccessibleName(f"Tema {tema['nombre']}")
+            muestra.setStyleSheet(f"QPushButton#muestra {{ background: {tema['senal']}; }}")
+            muestra.setChecked(clave == self._tema)
+            muestra.clicked.connect(lambda _=False, c=clave: self._aplicar_tema(c))
+            self._grupo_tema.addButton(muestra)
+            caja.addWidget(muestra)
+        caja.addSpacing(18)
 
         self.punto_estado = QLabel()
         self.punto_estado.setObjectName("punto")
@@ -558,6 +584,14 @@ class VentanaPrincipal(QMainWindow):
         return barra
 
     # ------------------------------------------------------------------ #
+    def _aplicar_tema(self, clave: str) -> None:
+        if clave not in _TEMAS:
+            return
+        self._tema = clave
+        self.setStyleSheet(_construir_qss(_TEMAS[clave]))
+        if self._settings:
+            self._settings.setValue("tema", clave)
+
     def _set_estado(self, texto: str, estado: str = "") -> None:
         self.lbl_estado.setText(texto)
         self.punto_estado.setProperty("estado", estado)
