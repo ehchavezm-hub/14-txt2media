@@ -6,7 +6,7 @@ PowerPoint, Word, Excel, Audio MP3 (completo o por capítulos) y Video MP4.
 ## Instalación
 
 ```bash
-cd D:\PST\txt2media
+cd "C:\09\00 txt2media"
 py -3.13 -m pip install -e .
 
 # Opcional: OCR para PDFs escaneados (requiere Tesseract instalado)
@@ -22,8 +22,8 @@ Funciona en CMD y en PowerShell.
 Primera vez (requiere Git y Python 3.13):
 
 ```bash
-git clone https://github.com/ehchavezm-hub/14-txt2media D:\PST\txt2media
-cd D:\PST\txt2media
+git clone https://github.com/ehchavezm-hub/14-txt2media "C:\09\00 txt2media"
+cd "C:\09\00 txt2media"
 ```
 
 Después, siempre desde esa carpeta:

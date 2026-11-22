@@ -21,7 +21,7 @@ git push origin main
 
 - **Nombre**: txt2media v1.0.1
 - **Repo**: https://github.com/ehchavezm-hub/14-txt2media
-- **Windows**: `D:\PST\txt2media`
+- **Windows**: `C:\09\00 txt2media`
 - **Python**: `py -3.13`
 - **Tests**: `pytest tests/ -v`
 

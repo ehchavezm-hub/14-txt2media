@@ -5,7 +5,7 @@ REM
 REM  Antes de cada uso trae la ultima version desde GitHub (git pull) y, si
 REM  cambiaron las dependencias, las reinstala.
 REM
-REM  Uso (desde la carpeta del repositorio, p. ej. D:\PST\txt2media):
+REM  Uso (desde la carpeta del repositorio, p. ej. C:\09\00 txt2media):
 REM    txt2media                     Abre la ventana
 REM    txt2media convertir libro.pdf --formato audio
 REM    txt2media convertir a.pdf b.epub --formato video --salida D:\Salida
