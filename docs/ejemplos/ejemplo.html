@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="txt2media">
+<title>La paradoja: un relato sobre la verdadera esencia del liderazgo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root {
+  --tinta: #12171D; --tinta-2: #4E5865; --tinta-3: #8A939E;
+  --fondo: #FFFFFF; --papel: #F6F8FB; --linea: #E3E7EE;
+  --acento: #1F64D6; --acento-2: #4F46E5; --acento-suave: #EAF1FD;
+  --codigo: #F4F6FA; --codigo-txt: #1E293B;
+  --hero-a: #EEF4FF; --hero-b: #F4F1FF; --hero-brillo: #E4DEFF;
+  --tam: 18px; --ancho: 720px; --f-lectura: var(--f-texto);
+  --sombra: 0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06);
+  --f-titulo: 'Figtree', 'Segoe UI', system-ui, sans-serif;
+  --f-texto: 'Source Serif 4', 'Georgia', 'Cambria', serif;
+  --f-mono: 'JetBrains Mono', 'Cascadia Mono', Consolas, monospace;
+  --ancho-menu: 300px;
+  color-scheme: light;
+}
+/* Tres modos claros de lectura (Blanco es el predeterminado) */
+:root[data-tema="sepia"] {
+  --tinta: #3A2E22; --tinta-2: #5C4B39; --tinta-3: #8A7760;
+  --fondo: #FAF3E5; --papel: #F3E8D2; --linea: #E4D5B9;
+  --acento: #9C5A1F; --acento-2: #B4532A; --acento-suave: #F0E0C4;
+  --codigo: #F2E7D1; --codigo-txt: #3A2E22;
+  --hero-a: #F6EBD6; --hero-b: #F3E3CB; --hero-brillo: #EBD3AE;
+  --sombra: 0 1px 2px rgba(90,60,20,.06), 0 8px 24px rgba(90,60,20,.08);
+}
+:root[data-tema="gris"] {
+  --tinta: #262B32; --tinta-2: #4B525C; --tinta-3: #7C848F;
+  --fondo: #EEF0F2; --papel: #E5E8EC; --linea: #D5DAE0;
+  --acento: #3A5D8F; --acento-2: #5A5EA6; --acento-suave: #DDE4EE;
+  --codigo: #E3E6EA; --codigo-txt: #262B32;
+  --hero-a: #E6EAF0; --hero-b: #EAEAF1; --hero-brillo: #D6DDE8;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--fondo); color: var(--tinta);
+  font: var(--tam)/1.75 var(--f-lectura); transition: background .3s, color .3s; text-rendering: optimizeLegibility; }
+a { color: var(--acento); }
+::selection { background: var(--acento-suave); }
+
+/* Barra de progreso */
+#progreso { position: fixed; top: 0; left: 0; height: 3px; width: 0;
+  background: linear-gradient(90deg, var(--acento), var(--acento-2)); z-index: 50; transition: width .1s linear; }
+
+/* Menú lateral */
+#menu { position: fixed; inset: 0 auto 0 0; width: var(--ancho-menu); background: var(--papel);
+  border-right: 1px solid var(--linea); display: flex; flex-direction: column; z-index: 40;
+  font-family: var(--f-titulo); transition: transform .25s ease; }
+.menu-cab { padding: 24px 22px 16px; border-bottom: 1px solid var(--linea); }
+.marca { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--tinta-3); }
+.marca i { width: 8px; height: 8px; border-radius: 2px; background: linear-gradient(135deg, var(--acento), var(--acento-2)); }
+.menu-titulo { margin: 10px 0 0; font-size: 16px; line-height: 1.35; font-weight: 700; color: var(--tinta); }
+.buscar { margin: 14px 0 0; width: 100%; padding: 9px 12px; border: 1px solid var(--linea); border-radius: 8px;
+  background: var(--fondo); color: var(--tinta); font: 14px var(--f-titulo); }
+.buscar:focus { outline: 2px solid var(--acento); outline-offset: -1px; }
+#indice { flex: 1; overflow-y: auto; padding: 10px 10px 24px; }
+#indice a { display: flex; gap: 10px; align-items: baseline; padding: 7px 12px; border-radius: 8px;
+  color: var(--tinta-2); text-decoration: none; font-size: 14px; line-height: 1.4; border-left: 3px solid transparent; }
+#indice a:hover { background: var(--fondo); color: var(--tinta); }
+#indice a.activo { background: var(--fondo); color: var(--tinta); border-left-color: var(--c); box-shadow: var(--sombra); font-weight: 600; }
+#indice a .n { font: 600 11px/1.8 var(--f-mono); color: var(--c); min-width: 2.4em; }
+#indice a.n2 { padding-left: 26px; font-size: 13px; }
+#indice a.n3 { padding-left: 40px; font-size: 13px; }
+#indice a.oculto { display: none; }
+.menu-pie { padding: 12px 22px; border-top: 1px solid var(--linea); display: flex; justify-content: space-between;
+  align-items: center; font-size: 12px; color: var(--tinta-3); }
+.boton { border: 1px solid var(--linea); background: var(--fondo); color: var(--tinta-2); border-radius: 8px;
+  padding: 6px 10px; font: 600 12px var(--f-titulo); cursor: pointer; }
+.boton:hover { color: var(--tinta); border-color: var(--tinta-3); }
+.lectura { padding: 14px 22px; border-top: 1px solid var(--linea); display: grid; gap: 10px; }
+.lectura .rot { font: 700 10px var(--f-titulo); letter-spacing: .14em; text-transform: uppercase; color: var(--tinta-3); }
+.modos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.modos button { border: 1px solid var(--linea); border-radius: 8px; padding: 8px 4px; cursor: pointer;
+  font: 600 12px var(--f-titulo); background: var(--m-fondo); color: var(--m-tinta); }
+.modos button[aria-pressed="true"] { outline: 2px solid var(--acento); outline-offset: 1px; }
+.letra { display: flex; align-items: center; gap: 6px; }
+.letra .boton { flex: 1; }
+.seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.seg.dos { grid-template-columns: repeat(2, 1fr); }
+.seg button { border: 1px solid var(--linea); border-radius: 8px; padding: 7px 4px; cursor: pointer; background: var(--fondo);
+  color: var(--tinta-2); font: 600 12px var(--f-titulo); }
+.seg button[aria-pressed="true"] { color: var(--acento); border-color: var(--acento); background: var(--acento-suave); }
+#avance { position: fixed; left: calc(var(--ancho-menu) + 20px); bottom: 20px; z-index: 30; padding: 7px 12px;
+  border-radius: 999px; background: color-mix(in srgb, var(--fondo) 92%, transparent); border: 1px solid var(--linea);
+  box-shadow: var(--sombra); font: 600 12px var(--f-titulo); color: var(--tinta-2); backdrop-filter: blur(6px); }
+#aviso { position: fixed; left: 50%; top: 20px; transform: translate(-50%, -20px); opacity: 0; z-index: 60;
+  padding: 10px 16px; border-radius: 10px; background: var(--tinta); color: var(--fondo); font: 600 13px var(--f-titulo);
+  transition: opacity .3s, transform .3s; pointer-events: none; }
+#aviso.ver { opacity: 1; transform: translate(-50%, 0); }
+.letra span { font: 600 12px var(--f-mono); color: var(--tinta-3); min-width: 42px; text-align: center; }
+
+/* Contenido */
+main { margin-left: var(--ancho-menu); }
+.portada { position: relative; overflow: hidden; padding: 96px 8vw 72px; color: var(--tinta);
+  background: radial-gradient(900px 420px at 90% -20%, var(--hero-brillo) 0%, transparent 60%),
+              linear-gradient(135deg, var(--hero-a) 0%, var(--hero-b) 100%);
+  border-bottom: 1px solid var(--linea); }
+.portada::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 6px;
+  background: linear-gradient(180deg, var(--acento), var(--acento-2)); }
+.portada::after { content: ""; position: absolute; inset: auto -10% -60% auto; width: 520px; height: 520px;
+  border: 1px solid color-mix(in srgb, var(--acento) 22%, transparent); border-radius: 50%; }
+.portada .etiqueta { font: 700 12px var(--f-titulo); letter-spacing: .16em; text-transform: uppercase; color: var(--acento); }
+.portada h1 { font: 800 clamp(34px, 5vw, 60px)/1.05 var(--f-titulo); letter-spacing: -.02em; margin: 14px 0 12px; max-width: 18ch; text-wrap: balance; }
+.portada .autor { font: 500 20px var(--f-titulo); color: var(--tinta-2); }
+.datos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 34px; }
+.dato { background: color-mix(in srgb, var(--fondo) 85%, transparent); border: 1px solid var(--linea); box-shadow: var(--sombra);
+  border-radius: 12px; padding: 10px 16px; font-family: var(--f-titulo); }
+.dato b { display: block; font-size: 20px; line-height: 1.1; color: var(--acento); }
+.dato span { font-size: 12px; color: var(--tinta-3); letter-spacing: .04em; }
+
+.cuerpo { max-width: calc(var(--ancho) + 64px); margin: 0 auto; padding: 56px 32px 120px; }
+.seccion { padding-top: 40px; scroll-margin-top: 24px; }
+.seccion + .seccion { border-top: 1px solid var(--linea); margin-top: 40px; }
+.sec-cab { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 22px; }
+.sec-num { flex: none; min-width: 44px; height: 44px; padding: 0 8px; border-radius: 12px; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--c) 12%, transparent); color: var(--c); font: 700 15px var(--f-mono); }
+.seccion h2 { margin: 4px 0 0; font: 700 30px/1.2 var(--f-titulo); letter-spacing: -.01em; text-wrap: balance; }
+.seccion.n2 h2 { font-size: 24px; }
+.seccion.n3 h2 { font-size: 20px; }
+.seccion p { margin: 0 0 1.1em; hyphens: auto; }
+.seccion p.capitular::first-letter { float: left; font: 700 3.4em/0.85 var(--f-titulo);
+  margin: .08em .1em 0 0; color: var(--c); }
+.seccion ul { margin: 0 0 1.2em; padding-left: 0; list-style: none; }
+.seccion li { position: relative; padding-left: 26px; margin-bottom: .45em; }
+.seccion li::before { content: ""; position: absolute; left: 6px; top: .72em; width: 7px; height: 7px; border-radius: 2px; background: var(--c); }
+blockquote { margin: 1.6em 0; padding: 18px 24px; border-left: 4px solid var(--c); background: var(--papel);
+  border-radius: 0 12px 12px 0; font-style: italic; color: var(--tinta-2); font-size: 1.05em; }
+pre, .tabla, blockquote, figure, ul, .notas { clear: both; }
+.bloques::after { content: ""; display: block; clear: both; }
+pre { position: relative; border: 1px solid var(--linea); margin: 1.5em 0; padding: 18px 20px; background: var(--codigo); color: var(--codigo-txt);
+  border-radius: 12px; overflow-x: auto; font: 14px/1.6 var(--f-mono); }
+pre .copiar { position: absolute; top: 10px; right: 10px; }
+pre .lang { position: absolute; top: 12px; right: 84px; font: 600 11px var(--f-titulo); letter-spacing: .08em; text-transform: uppercase; color: var(--tinta-3); }
+.tabla { margin: 1.6em 0; overflow-x: auto; border: 1px solid var(--linea); border-radius: 12px; box-shadow: var(--sombra); }
+table { border-collapse: collapse; width: 100%; font: 15px/1.5 var(--f-titulo); }
+thead th { position: sticky; top: 0; background: color-mix(in srgb, var(--c) 13%, var(--fondo)); color: color-mix(in srgb, var(--c) 80%, var(--tinta));
+  text-align: left; padding: 11px 14px; font-weight: 700; border-bottom: 2px solid color-mix(in srgb, var(--c) 45%, transparent); }
+td { padding: 10px 14px; border-top: 1px solid var(--linea); vertical-align: top; }
+tbody tr:nth-child(even) td { background: var(--papel); }
+tbody tr:hover td { background: var(--acento-suave); }
+figure { margin: 1.8em 0; }
+figure img { max-width: 100%; height: auto; border-radius: 12px; box-shadow: var(--sombra); }
+.caption, figcaption { font: 14px/1.5 var(--f-titulo); color: var(--tinta-3); margin: -.4em 0 1.4em; }
+hr.sep { border: 0; height: 1px; margin: 2.4em auto; width: 40%; background: linear-gradient(90deg, transparent, var(--linea), transparent); }
+.notas { margin-top: 1.8em; padding: 16px 20px; border: 1px dashed var(--linea); border-radius: 12px;
+  font: 14px/1.55 var(--f-titulo); color: var(--tinta-2); }
+.notas b { display: block; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--tinta-3); margin-bottom: 6px; }
+.notas p { margin: 0 0 .4em; }
+abbr.sigla { text-decoration: none; font-size: .88em; letter-spacing: .06em; }
+mark.pct { background: none; color: var(--c); font-weight: 700; font-family: var(--f-titulo); }
+.fin { margin-top: 80px; padding-top: 24px; border-top: 1px solid var(--linea); font: 13px var(--f-titulo);
+  color: var(--tinta-3); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+#arriba { position: fixed; right: 24px; bottom: 24px; width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--linea); background: var(--fondo); color: var(--tinta-2); box-shadow: var(--sombra);
+  font: 700 18px var(--f-titulo); cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 30; }
+#arriba.ver { opacity: 1; pointer-events: auto; }
+#abrir-menu { display: none; position: fixed; top: 14px; left: 14px; z-index: 45; }
+
+@media (max-width: 960px) {
+  #menu { transform: translateX(-100%); box-shadow: var(--sombra); }
+  body.menu-abierto #menu { transform: none; }
+  main { margin-left: 0; }
+  #abrir-menu { display: block; }
+  #avance { left: 14px; bottom: 14px; }
+  .portada { padding: 88px 24px 56px; }
+  .cuerpo { padding: 40px 20px 100px; }
+  body { font-size: 17px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+@media print {
+  #menu, #progreso, #arriba, #abrir-menu, #avance, #aviso, pre .copiar { display: none !important; }
+  main { margin: 0; }
+  .portada { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 60px 40px; page-break-after: always; }
+  .seccion { page-break-inside: avoid; }
+  body { font-size: 12pt; }
+}
+</style>
+</head>
+<body>
+<div id="progreso" aria-hidden="true"></div>
+<button id="abrir-menu" class="boton" aria-label="Abrir índice">☰ Índice</button>
+<aside id="menu" aria-label="Índice del documento">
+  <div class="menu-cab">
+    <div class="marca"><i></i>txt2media</div>
+    <p class="menu-titulo">La paradoja: un relato sobre la verdadera esencia del liderazgo</p>
+    <input id="buscar" class="buscar" type="search" placeholder="Buscar sección…" aria-label="Buscar sección">
+  </div>
+  <nav id="indice"><a href="#s1" class="n1" style="--c:#1F64D6"><span class="n">1</span><span>Prólogo</span></a><a href="#s2" class="n1" style="--c:#0E7C72"><span class="n">2</span><span>Capítulo 1 — Las definiciones</span></a><a href="#s3" class="n2" style="--c:#4F46E5"><span class="n">1.1</span><span>El modelo de la pirámide invertida</span></a><a href="#s4" class="n2" style="--c:#C2410C"><span class="n">1.2</span><span>Herramientas del líder</span></a><a href="#s5" class="n1" style="--c:#7C3AED"><span class="n">3</span><span>Capítulo 2 — El modelo</span></a><a href="#s6" class="n1" style="--c:#0369A1"><span class="n">4</span><span>Epílogo</span></a></nav>
+  <div class="lectura">
+    <span class="rot">Modo de lectura</span>
+    <div class="modos" role="group" aria-label="Modo de lectura">
+      <button type="button" data-tema="blanco" style="--m-fondo:#FFFFFF;--m-tinta:#12171D">Blanco</button>
+      <button type="button" data-tema="sepia" style="--m-fondo:#FAF3E5;--m-tinta:#3A2E22">Sepia</button>
+      <button type="button" data-tema="gris" style="--m-fondo:#EEF0F2;--m-tinta:#262B32">Gris suave</button>
+    </div>
+    <span class="rot">Tipografía</span>
+    <div class="seg dos" id="fuentes" role="group" aria-label="Tipografía">
+      <button type="button" data-v="serif" style="font-family:var(--f-texto)">Serifa</button>
+      <button type="button" data-v="sans" style="font-family:var(--f-titulo)">Sin serifa</button>
+    </div>
+    <span class="rot">Ancho de línea</span>
+    <div class="seg" id="anchos" role="group" aria-label="Ancho de línea">
+      <button type="button" data-v="600">Estrecho</button>
+      <button type="button" data-v="720">Normal</button>
+      <button type="button" data-v="880">Ancho</button>
+    </div>
+    <span class="rot">Tamaño de letra</span>
+    <div class="letra" role="group" aria-label="Tamaño de letra">
+      <button type="button" class="boton" id="menos" aria-label="Letra más pequeña">A−</button>
+      <span id="tam">100%</span>
+      <button type="button" class="boton" id="mas" aria-label="Letra más grande">A+</button>
+    </div>
+  </div>
+  <div class="menu-pie"><span>6 secciones</span><span>3 min de lectura</span></div>
+</aside>
+<main>
+  <header class="portada" id="inicio">
+    <div class="etiqueta">Documento</div>
+    <h1>La paradoja: un relato sobre la verdadera esencia del liderazgo</h1>
+    <div class="autor">James C. Hunter</div>
+    <div class="datos"><div class="dato"><b>6</b><span>secciones</span></div><div class="dato"><b>572</b><span>palabras</span></div><div class="dato"><b>3 min</b><span>de lectura</span></div><div class="dato"><b>PDF</b><span>origen</span></div></div>
+  </header>
+  <div class="cuerpo">
+    <section class="seccion n1" id="s1" style="--c:#1F64D6"><header class="sec-cab"><span class="sec-num">1</span><h2>Prólogo</h2></header><div class="bloques"><p class="capitular">John Daily era un gerente exitoso de una planta de vidrio con más de 500 empleados. Sin embargo, su vida personal y profesional empezaba a resquebrajarse, y nadie en la empresa parecía notarlo. La productividad había caído un <mark class="pct">12 %</mark> en el último trimestre.</p><p>Fue entonces cuando su esposa le sugirió un retiro de una semana en un monasterio benedictino a orillas del lago Míchigan.</p></div></section><section class="seccion n1" id="s2" style="--c:#0E7C72"><header class="sec-cab"><span class="sec-num">2</span><h2>Capítulo 1 — Las definiciones</h2></header><div class="bloques"><p>El liderazgo es la habilidad de influir sobre las personas para que trabajen con entusiasmo en la consecución de objetivos en pro del bien común.</p><blockquote>El que quiera ser el primero, que sea el servidor de todos.</blockquote><ul><li>Poder: la facultad de obligar a otros a hacer tu voluntad.</li><li>Autoridad: el arte de conseguir que la gente haga voluntariamente lo que quieres.</li><li>Liderazgo: influir con el ejemplo y el servicio.</li></ul><p>Según la <abbr class="sigla">ONU</abbr> y la <abbr class="sigla">OIT</abbr>, el <mark class="pct">70 %</mark> de las personas que dejan su empleo lo hacen por su jefe directo.</p></div></section><section class="seccion n2" id="s3" style="--c:#4F46E5"><header class="sec-cab"><span class="sec-num">1.1</span><h2>El modelo de la pirámide invertida</h2></header><div class="bloques"><p>En el modelo tradicional, el director está en la cima. En el modelo de servicio, la pirámide se invierte.</p><div class="tabla"><table><thead><tr><th>Modelo</th><th>Quién sirve</th><th>Resultado</th></tr></thead><tbody><tr><td>Tradicional</td><td>Los empleados al jefe</td><td>Cumplimiento</td></tr><tr><td>Invertido</td><td>El líder al equipo</td><td>Compromiso</td></tr><tr><td>Mixto</td><td>Depende del área</td><td>Variable</td></tr></tbody></table></div><p class="caption">Tabla 1. Comparación de modelos de liderazgo.</p><aside class="notas"><b>Notas</b><p>1. Adaptado de Greenleaf, R. (1977). Servant Leadership.</p></aside></div></section><section class="seccion n2" id="s4" style="--c:#C2410C"><header class="sec-cab"><span class="sec-num">1.2</span><h2>Herramientas del líder</h2></header><div class="bloques"><p>Un ejemplo de registro de hábitos semanales:</p><pre><span class="lang">python</span><button class="boton copiar" type="button">Copiar</button><code>habitos = {
+    &#x27;escuchar&#x27;: 5,
+    &#x27;reconocer&#x27;: 3,
+    &#x27;servir&#x27;: 4,
+}</code></pre><hr class="sep"></div></section><section class="seccion n1" id="s5" style="--c:#7C3AED"><header class="sec-cab"><span class="sec-num">3</span><h2>Capítulo 2 — El modelo</h2></header><div class="bloques"><p class="capitular">La segunda jornada comenzó a las cinco de la mañana con los cantos del monasterio. Simeón, el antiguo ejecutivo convertido en monje, explicó que la autoridad se construye sobre el servicio y el sacrificio.</p><p>Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos.</p><p>Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos.</p><p>Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos.</p><p>Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos. Párrafo de relleno para comprobar el ritmo de lectura en documentos largos.</p></div></section><section class="seccion n1" id="s6" style="--c:#0369A1"><header class="sec-cab"><span class="sec-num">4</span><h2>Epílogo</h2></header><div class="bloques"><p>John regresó a la planta con una nueva forma de entender su trabajo.</p></div></section>
+    <footer class="fin"><span>La paradoja: un relato sobre la verdadera esencia del liderazgo</span><span>Generado con txt2media · 22/11/2026</span></footer>
+  </div>
+</main>
+<button id="arriba" type="button" aria-label="Volver arriba">↑</button>
+<div id="avance" aria-live="off">0 % leído</div>
+<div id="aviso" role="status"></div>
+<script>
+(function () {
+  var raiz = document.documentElement;
+  function guardar(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function leer(k, d) { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }
+
+  var modos = document.querySelectorAll('.modos button');
+  function modo(m) {
+    if (m === 'blanco') delete raiz.dataset.tema; else raiz.dataset.tema = m;
+    modos.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.tema === m)); });
+  }
+  modo(leer('txt2media-modo', 'blanco'));
+  modos.forEach(function (b) { b.addEventListener('click', function () { modo(b.dataset.tema); guardar('txt2media-modo', b.dataset.tema); }); });
+
+  var escala = parseInt(leer('txt2media-letra', '100'), 10) || 100;
+  function letra(v) {
+    escala = Math.max(80, Math.min(140, v));
+    raiz.style.setProperty('--tam', (18 * escala / 100).toFixed(1) + 'px');
+    document.getElementById('tam').textContent = escala + '%';
+    guardar('txt2media-letra', String(escala));
+  }
+  letra(escala);
+  document.getElementById('menos').addEventListener('click', function () { letra(escala - 10); });
+  document.getElementById('mas').addEventListener('click', function () { letra(escala + 10); });
+
+  function grupo(id, clave, defecto, aplicarValor) {
+    var botones = document.querySelectorAll('#' + id + ' button');
+    function poner(v) {
+      aplicarValor(v);
+      botones.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.v === v)); });
+      guardar(clave, v);
+    }
+    poner(leer(clave, defecto));
+    botones.forEach(function (b) { b.addEventListener('click', function () { poner(b.dataset.v); }); });
+  }
+  grupo('fuentes', 'txt2media-fuente', 'serif', function (v) {
+    raiz.style.setProperty('--f-lectura', v === 'sans' ? 'var(--f-titulo)' : 'var(--f-texto)');
+  });
+  grupo('anchos', 'txt2media-ancho', '720', function (v) { raiz.style.setProperty('--ancho', v + 'px'); });
+
+  var enlaces = Array.prototype.slice.call(document.querySelectorAll('#indice a'));
+  var porId = {};
+  enlaces.forEach(function (a) { porId[a.getAttribute('href').slice(1)] = a; });
+  var actual = null;
+  var obs = new IntersectionObserver(function (entradas) {
+    entradas.forEach(function (e) {
+      if (e.isIntersecting) {
+        if (actual) actual.classList.remove('activo');
+        actual = porId[e.target.id];
+        if (actual) { actual.classList.add('activo'); actual.scrollIntoView({ block: 'nearest' }); }
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px' });
+  document.querySelectorAll('.seccion').forEach(function (s) { obs.observe(s); });
+
+  var barra = document.getElementById('progreso'), arriba = document.getElementById('arriba');
+  var avance = document.getElementById('avance'), minutos = 3;
+  var claveLectura = 'txt2media-pos-' + document.title;
+  var pendiente = null;
+  function alDesplazar() {
+    var h = document.documentElement;
+    var p = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight);
+    barra.style.width = (p * 100).toFixed(2) + '%';
+    arriba.classList.toggle('ver', h.scrollTop > 600);
+    var resta = Math.max(0, Math.ceil(minutos * (1 - p)));
+    avance.textContent = Math.round(p * 100) + ' % leído · ' + (resta ? resta + ' min restantes' : 'terminado');
+    clearTimeout(pendiente);
+    pendiente = setTimeout(function () { guardar(claveLectura, String(p)); }, 400);
+  }
+  window.addEventListener('scroll', alDesplazar, { passive: true });
+  // Retomar donde se dejó la lectura
+  var previa = parseFloat(leer(claveLectura, '0'));
+  if (previa > 0.02 && previa < 0.98 && !location.hash) {
+    var h = document.documentElement;
+    window.scrollTo(0, previa * (h.scrollHeight - h.clientHeight));
+    var aviso = document.getElementById('aviso');
+    aviso.textContent = 'Continúas donde lo dejaste (' + Math.round(previa * 100) + ' %)';
+    aviso.classList.add('ver');
+    setTimeout(function () { aviso.classList.remove('ver'); }, 3200);
+  }
+  alDesplazar();
+  arriba.addEventListener('click', function () { window.scrollTo({ top: 0 }); });
+
+  document.getElementById('buscar').addEventListener('input', function () {
+    var q = this.value.trim().toLowerCase();
+    enlaces.forEach(function (a) { a.classList.toggle('oculto', q && a.textContent.toLowerCase().indexOf(q) < 0); });
+  });
+
+  document.getElementById('abrir-menu').addEventListener('click', function () { document.body.classList.toggle('menu-abierto'); });
+  enlaces.forEach(function (a) { a.addEventListener('click', function () { document.body.classList.remove('menu-abierto'); }); });
+
+  document.querySelectorAll('pre .copiar').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var codigo = b.parentNode.querySelector('code').innerText;
+      var fin = function () { b.textContent = 'Copiado'; setTimeout(function () { b.textContent = 'Copiar'; }, 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(codigo).then(fin, fin); else fin();
+    });
+  });
+})();
+</script>
+</body>
+</html>

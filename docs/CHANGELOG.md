@@ -17,6 +17,12 @@
 - `txt2media.cmd` se reinicia solo si `git pull` lo actualiza mientras corre
 - `.gitattributes`: los `.bat` y `.cmd` se guardan con fin de línea de Windows (CRLF)
 
+### Entregables (HTML, Markdown, Word)
+- **HTML** rediseñado como lector de libros: menú lateral con índice numerado y buscador, portada con datos de lectura, tres modos claros de lectura (Blanco, Sepia, Gris suave), tipografía con o sin serifa, ancho de línea, tamaño de letra, retoma la lectura donde se dejó, avance con minutos restantes, código con botón Copiar, tablas suaves, versión móvil e impresión. Sin modo oscuro
+- **Markdown** limpio y compatible con MarkText/GitHub/Obsidian: ficha (front matter), cabecera centrada, índice con enlaces, capítulos numerados, "Volver al índice", notas destacadas y tablas escapadas. Sin estilos en línea
+- **Word** editorial: portada clara, índice automático (ya escrito y actualizable), capítulos numerados con color, tablas con encabezado suave y filas alternas, citas con filete, código sombreado, encabezado y pie con "Página X de Y"
+- Ejemplos en `docs/ejemplos/`
+
 ### Interfaz
 - Rediseño visual de la ventana: estilo minimalista y profesional en tema claro (blanco, un único color de señal, Figtree + monoespaciada para datos)
 - Formatos, voz y modo de audio como botones visibles en lugar de listas desplegables
