@@ -16,6 +16,9 @@ REM
 REM  Para saltarse el git pull una vez:   set TXT2MEDIA_SIN_PULL=1
 REM ============================================================================
 setlocal
+REM Abierto con doble clic: en caso de error la ventana espera para que se lea.
+set "DOBLECLIC="
+echo %CMDCMDLINE% | find /i "%~nx0" >nul && set "DOBLECLIC=1"
 set "RAIZ=%~dp0"
 if "%RAIZ:~-1%"=="\" set "RAIZ=%RAIZ:~0,-1%"
 
@@ -27,6 +30,7 @@ if not defined PY python --version >nul 2>&1 && set "PY=python"
 if not defined PY (
     echo [ERROR] No se encontro Python 3.12 o 3.13.
     echo         Instalalo desde https://www.python.org/downloads/ y marca "Add Python to PATH".
+    if defined DOBLECLIC pause
     exit /b 1
 )
 
@@ -93,6 +97,7 @@ if not errorlevel 1 goto :Ejecutar
 %PY% -m pip install -e "%RAIZ%" -q --no-warn-script-location
 if not errorlevel 1 goto :Ejecutar
 echo [ERROR] No se pudieron instalar las dependencias. Revisa el mensaje de pip arriba.
+if defined DOBLECLIC pause
 exit /b 1
 
 :Ejecutar
@@ -116,6 +121,7 @@ echo [txt2media] Abriendo la ventana... ^(cierra la ventana para volver a la ter
 %PY% -m txt2media.ui.ventana_principal
 if errorlevel 1 (
     echo [ERROR] La ventana se cerro con un error. El detalle esta arriba.
+    if defined DOBLECLIC pause
     exit /b 1
 )
 exit /b 0
